@@ -1,0 +1,15 @@
+{
+    "elements": [
+        {
+            "ip": 7175,
+            "name": "first",
+            "type": "server"
+        },
+        {
+            "ip": "71.78.22.43",
+            "name": "second",
+            "type": "proxy"
+        }
+    ],
+    "info": "Sample JSON output from our service\\t"
+}
