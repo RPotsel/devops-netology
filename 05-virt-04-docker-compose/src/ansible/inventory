@@ -1,0 +1,9 @@
+[nodes:children]
+server
+clients
+
+[server]
+node01.netology.cloud ansible_host=84.201.135.153
+
+[clients]
+node02.netology.cloud ansible_host=84.201.135.248
