@@ -1,0 +1,311 @@
+--
+-- PostgreSQL database cluster dump
+--
+
+SET default_transaction_read_only = off;
+
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+
+--
+-- Roles
+--
+
+CREATE ROLE postgres;
+ALTER ROLE postgres WITH SUPERUSER INHERIT CREATEROLE CREATEDB LOGIN REPLICATION BYPASSRLS PASSWORD 'md53175bce1d3201d16594cebf9d7eb3f9d';
+CREATE ROLE "test-admin-user";
+ALTER ROLE "test-admin-user" WITH NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB LOGIN NOREPLICATION NOBYPASSRLS PASSWORD 'md531f65fc5e3efab3b3b7b91bed56a15a7';
+CREATE ROLE "test-simple-usesr";
+ALTER ROLE "test-simple-usesr" WITH NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB LOGIN NOREPLICATION NOBYPASSRLS PASSWORD 'md5e04ea598195fe38d712bb337cd9c367c';
+
+
+
+
+
+
+--
+-- Databases
+--
+
+--
+-- Database "template1" dump
+--
+
+\connect template1
+
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 12.10 (Debian 12.10-1.pgdg110+1)
+-- Dumped by pg_dump version 12.9 (Ubuntu 12.9-0ubuntu0.20.04.1)
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- PostgreSQL database dump complete
+--
+
+--
+-- Database "postgres" dump
+--
+
+\connect postgres
+
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 12.10 (Debian 12.10-1.pgdg110+1)
+-- Dumped by pg_dump version 12.9 (Ubuntu 12.9-0ubuntu0.20.04.1)
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- PostgreSQL database dump complete
+--
+
+--
+-- Database "test_db" dump
+--
+
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 12.10 (Debian 12.10-1.pgdg110+1)
+-- Dumped by pg_dump version 12.9 (Ubuntu 12.9-0ubuntu0.20.04.1)
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- Name: test_db; Type: DATABASE; Schema: -; Owner: postgres
+--
+
+CREATE DATABASE test_db WITH TEMPLATE = template0 ENCODING = 'UTF8' LC_COLLATE = 'en_US.utf8' LC_CTYPE = 'en_US.utf8';
+
+
+ALTER DATABASE test_db OWNER TO postgres;
+
+\connect test_db
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- Name: clients; Type: TABLE; Schema: public; Owner: test-admin-user
+--
+
+CREATE TABLE public.clients (
+    id integer NOT NULL,
+    full_name character varying(100),
+    country character varying(100),
+    order_id integer
+);
+
+
+ALTER TABLE public.clients OWNER TO "test-admin-user";
+
+--
+-- Name: clients_id_seq; Type: SEQUENCE; Schema: public; Owner: test-admin-user
+--
+
+CREATE SEQUENCE public.clients_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.clients_id_seq OWNER TO "test-admin-user";
+
+--
+-- Name: clients_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: test-admin-user
+--
+
+ALTER SEQUENCE public.clients_id_seq OWNED BY public.clients.id;
+
+
+--
+-- Name: orders; Type: TABLE; Schema: public; Owner: test-admin-user
+--
+
+CREATE TABLE public.orders (
+    id integer NOT NULL,
+    name character varying(100),
+    price integer
+);
+
+
+ALTER TABLE public.orders OWNER TO "test-admin-user";
+
+--
+-- Name: orders_id_seq; Type: SEQUENCE; Schema: public; Owner: test-admin-user
+--
+
+CREATE SEQUENCE public.orders_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.orders_id_seq OWNER TO "test-admin-user";
+
+--
+-- Name: orders_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: test-admin-user
+--
+
+ALTER SEQUENCE public.orders_id_seq OWNED BY public.orders.id;
+
+
+--
+-- Name: clients id; Type: DEFAULT; Schema: public; Owner: test-admin-user
+--
+
+ALTER TABLE ONLY public.clients ALTER COLUMN id SET DEFAULT nextval('public.clients_id_seq'::regclass);
+
+
+--
+-- Name: orders id; Type: DEFAULT; Schema: public; Owner: test-admin-user
+--
+
+ALTER TABLE ONLY public.orders ALTER COLUMN id SET DEFAULT nextval('public.orders_id_seq'::regclass);
+
+
+--
+-- Data for Name: clients; Type: TABLE DATA; Schema: public; Owner: test-admin-user
+--
+
+COPY public.clients (id, full_name, country, order_id) FROM stdin;
+2	Петров Петр Петрович	Canada	4
+3	Иоганн Себастьян Бах	Japan	5
+4	Ронни Джеймс Дио	Russia	1
+5	Ritchie Blackmore	Russia	2
+1	Иванов Иван Иванович	USA	3
+\.
+
+
+--
+-- Data for Name: orders; Type: TABLE DATA; Schema: public; Owner: test-admin-user
+--
+
+COPY public.orders (id, name, price) FROM stdin;
+1	Шоколад	10
+2	Принтер	3000
+3	Книга	500
+4	Монитор	7000
+5	Гитара	4000
+\.
+
+
+--
+-- Name: clients_id_seq; Type: SEQUENCE SET; Schema: public; Owner: test-admin-user
+--
+
+SELECT pg_catalog.setval('public.clients_id_seq', 1, false);
+
+
+--
+-- Name: orders_id_seq; Type: SEQUENCE SET; Schema: public; Owner: test-admin-user
+--
+
+SELECT pg_catalog.setval('public.orders_id_seq', 1, false);
+
+
+--
+-- Name: clients clients_pkey; Type: CONSTRAINT; Schema: public; Owner: test-admin-user
+--
+
+ALTER TABLE ONLY public.clients
+    ADD CONSTRAINT clients_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: orders orders_pkey; Type: CONSTRAINT; Schema: public; Owner: test-admin-user
+--
+
+ALTER TABLE ONLY public.orders
+    ADD CONSTRAINT orders_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: clients clients_order_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: test-admin-user
+--
+
+ALTER TABLE ONLY public.clients
+    ADD CONSTRAINT clients_order_id_fkey FOREIGN KEY (order_id) REFERENCES public.orders(id);
+
+
+--
+-- Name: DATABASE test_db; Type: ACL; Schema: -; Owner: postgres
+--
+
+GRANT ALL ON DATABASE test_db TO "test-admin-user";
+
+
+--
+-- Name: TABLE clients; Type: ACL; Schema: public; Owner: test-admin-user
+--
+
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.clients TO "test-simple-usesr";
+
+
+--
+-- Name: TABLE orders; Type: ACL; Schema: public; Owner: test-admin-user
+--
+
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE public.orders TO "test-simple-usesr";
+
+
+--
+-- PostgreSQL database dump complete
+--
+
+--
+-- PostgreSQL database cluster dump complete
+--
+
