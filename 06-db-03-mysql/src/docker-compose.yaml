@@ -1,0 +1,21 @@
+version: '3.9'
+
+volumes:
+  data: {}
+  backup: {}
+
+services:
+  mysql:
+    container_name: mysql_container
+    image: mysql:8
+    restart: always
+    environment:
+      MYSQL_DATABASE: "test_db"
+      MYSQL_ROOT_PASSWORD: ${ADMIN_PASSWORD:-changeme}
+    ports:
+      - '3306:3306'
+    volumes:
+      - data:/var/lib/mysql
+      - ./db/test_dump.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./db:/src:ro
+      - ./db/my.cnf:/etc/mysql/my.cnf:ro
