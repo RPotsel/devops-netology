@@ -1,0 +1,40 @@
+version: '3.9'
+
+services:
+  ngrok:
+    image: wernight/ngrok:latest
+    ports:
+    - 4040:4040
+    environment:
+      NGROK_PROTOCOL: http
+      NGROK_PORT: atlantis:4141
+    depends_on:
+    - atlantis
+
+  atlantis:
+    container_name: atlantis
+    image: runatlantis/atlantis:latest
+    ports:
+      - 4141:4141
+    volumes:
+      - ~/.ssh:/.ssh:ro
+      - ./:/atlantis:ro
+    command: 
+      - server
+      # Список параметров можно вынести в отдельный файл 
+      # - --config=./config.yaml
+      # Файл конфигурации сервера https://www.runatlantis.io/docs/configuring-atlantis.html#flags 
+      - --repo-config=./server.yaml
+      # УЗ для подключения к GitHub, можно использовать сервисную УЗ https://docs.github.com/en/developers/apps/building-github-apps/creating-a-github-app
+      - --gh-user=""
+      # https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token#creating-a-token 
+      - --gh-token=""
+      # Корень репозитория
+      - --repo-allowlist="github.com/RPotsel/devops-netology"
+      # Строка случайных символов https://www.runatlantis.io/docs/webhook-secrets.html#generating-a-webhook-secret 
+      - --gh-webhook-secret="ssfjkczzhsmkrojrwhwvmokplcqlnzai"
+      # Публичный адрес сервера atlantis, который будет доступен с GitHub
+      # Для локального сервера можно установить Ngrok https://www.runatlantis.io/guide/testing-locally.htm
+      - --atlantis-url=""
+      # Отключение блокировки workspaces согласно условия
+      - --disable-repo-locking
