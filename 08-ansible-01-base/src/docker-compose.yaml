@@ -1,0 +1,19 @@
+version: '3.9'
+
+services:
+  centos7:
+    container_name: centos7
+    image: centos:7
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t
+  ubuntu:
+    container_name: ubuntu
+    build: ./docker/ubuntu
+    image: ubuntu2004py3
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t
+  fedora:
+    container_name: fedora
+    image: pycontribs/fedora:latest
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t
