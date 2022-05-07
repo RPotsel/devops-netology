@@ -1,0 +1,67 @@
+---
+- name: Install Clickhouse
+  hosts: clickhouse
+  handlers:
+    - name: Start clickhouse service
+      become: true
+      ansible.builtin.service:
+        name: clickhouse-server
+        state: restarted
+      listen: "restart services"
+
+    - name: Start vector service
+      become: true
+      ansible.builtin.service:
+        name: vector
+        state: restarted
+      listen: "restart services"
+
+  tasks:
+    - block:
+        - name: Get clickhouse distrib
+          ansible.builtin.get_url:
+            url: "https://packages.clickhouse.com/rpm/stable/{{ item }}-{{ clickhouse_version }}.noarch.rpm"
+            dest: "./{{ item }}-{{ clickhouse_version }}.rpm"
+            mode: 0444
+          with_items: "{{ clickhouse_packages }}"
+      rescue:
+        - name: Get clickhouse distrib
+          ansible.builtin.get_url:
+            url: "https://packages.clickhouse.com/rpm/stable/clickhouse-common-static-{{ clickhouse_version }}.x86_64.rpm"
+            dest: "./clickhouse-common-static-{{ clickhouse_version }}.rpm"
+            mode: 0444
+    - name: Install clickhouse packages
+      become: true
+      ansible.builtin.yum:
+        name:
+          - clickhouse-common-static-{{ clickhouse_version }}.rpm
+          - clickhouse-client-{{ clickhouse_version }}.rpm
+          - clickhouse-server-{{ clickhouse_version }}.rpm
+      notify: Start clickhouse service
+      tags: packages
+    - name: "Wait for Clickhouse Server to Become Ready"
+      wait_for:
+        port: 9000
+        delay: 5
+    - name: Create database
+      ansible.builtin.command: "clickhouse-client -q 'create database logs;'"
+      register: create_db
+      failed_when: create_db.rc != 0 and create_db.rc !=82
+      changed_when: create_db.rc == 0
+      tags: create_db
+- name: Install Vector
+  hosts: clickhouse
+  tasks:
+    - name: Get Vector distrib
+      ansible.builtin.get_url:
+        url: "https://packages.timber.io/vector/0.21.1/vector-0.21.1-1.x86_64.rpm"
+        dest: "./vector-0.21.1-1.x86_64.rpm"
+        mode: 0444
+        validate_certs: false
+    - name: Install Vector packages
+      become: true
+      ansible.builtin.yum:
+        name:
+          - vector-0.21.1-1.x86_64.rpm
+      notify: Start vector service
+      tags: packages

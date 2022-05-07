@@ -1,0 +1,8 @@
+version: '3.9'
+
+services:
+  centos7:
+    container_name: clickhouse-01
+    image: centos:7
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t
