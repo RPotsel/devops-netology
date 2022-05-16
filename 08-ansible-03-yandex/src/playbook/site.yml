@@ -1,0 +1,143 @@
+---
+- name: Install nginx
+  hosts: lighthouse
+  become: true
+  tags: nginx
+
+  handlers:
+    - name: start_nginx
+      ansible.builtin.command: nginx
+
+  pre_tasks:
+    - name: Install epel
+      ansible.builtin.yum:
+        name:
+          - epel-release
+        state: present
+  tasks:
+    - name: Install nginx
+      ansible.builtin.yum:
+        name:
+          - nginx
+        state: present
+    - name: Create config nginx
+      ansible.builtin.template:
+        src: nginx.conf.j2
+        dest: /etc/nginx/nginx.conf
+        mode: 0644
+      notify: start_nginx
+
+- name: Install lighthouse
+  hosts: lighthouse
+  tags: lighthouse
+  handlers:
+    - name: reload_nginx
+      become: true
+      ansible.builtin.command: nginx -s reload
+
+  pre_tasks:
+    - name: Install git
+      become: true
+      ansible.builtin.yum:
+        name: git
+        state: present
+  tasks:
+    - name: Copy lighthouse
+      become: true
+      ansible.builtin.git:
+        repo: "{{ lighthouse_vcs }}"
+        dest: "{{ lighthouse_location_dir }}"
+        version: master
+    - name: Create lighthouse config
+      become: true
+      ansible.builtin.template:
+        src: lighthouse.conf.j2
+        dest: /etc/nginx/conf.d/default.conf
+        mode: 0644
+      notify: reload_nginx
+
+- name: Install Clickhouse
+  hosts: clickhouse
+  tags: clickhouse
+  handlers:
+    - name: Start clickhouse service
+      become: true
+      ansible.builtin.service:
+        name: clickhouse-server
+        state: restarted
+      listen: "restart services"
+
+  tasks:
+    - block:
+        - name: Get clickhouse distrib
+          ansible.builtin.get_url:
+            url: "https://packages.clickhouse.com/rpm/stable/{{ item }}-{{ clickhouse_version }}.noarch.rpm"
+            dest: "./{{ item }}-{{ clickhouse_version }}.rpm"
+            mode: 0444
+          with_items: "{{ clickhouse_packages }}"
+      rescue:
+        - name: Get clickhouse distrib
+          ansible.builtin.get_url:
+            url: "https://packages.clickhouse.com/rpm/stable/clickhouse-common-static-{{ clickhouse_version }}.x86_64.rpm"
+            dest: "./clickhouse-common-static-{{ clickhouse_version }}.rpm"
+            mode: 0444
+    - name: Install clickhouse packages
+      become: true
+      ansible.builtin.yum:
+        name:
+          - clickhouse-common-static-{{ clickhouse_version }}.rpm
+          - clickhouse-client-{{ clickhouse_version }}.rpm
+          - clickhouse-server-{{ clickhouse_version }}.rpm
+    - name: Listen specified address
+      become: true
+      ansible.builtin.replace:
+        path: /etc/clickhouse-server/config.xml
+        regexp: '\<\!\-\-\ \<listen_host\>0\.0\.0\.0\<\/listen_host\>\ \-\-\>'
+        replace: '<listen_host>0.0.0.0</listen_host>'
+      notify: Start clickhouse service
+    - name: Flush handlers
+      ansible.builtin.meta: flush_handlers
+    - name: Wait for Clickhouse Server to Become Ready
+      ansible.builtin.wait_for:
+        port: 9000
+        delay: 5
+    - name: Create database
+      ansible.builtin.command: "clickhouse-client -h 0.0.0.0 -q 'create database logs;'"
+      register: create_db
+      failed_when: create_db.rc != 0 and create_db.rc !=82
+      changed_when: create_db.rc == 0
+
+- name: Install Vector
+  hosts: vector
+  tasks:
+    - name: Vector | Install package
+      become: true
+      ansible.builtin.yum:
+        name: "{{ vector_url }}"
+        state: present
+      tags: vector
+    - name: Vector | Template config
+      ansible.builtin.template:
+        src: vector.yml.j2
+        dest: vector.yml
+        mode: "644"
+        owner: "{{ ansible_user_id }}"
+        group: "{{ ansible_user_gid }}"
+        validate: vector validate --no-environment --config-yaml %s
+      tags: vector
+    - name: Vector | create systemd unit
+      become: true
+      ansible.builtin.template:
+        src: vector.service.j2
+        dest: /etc/systemd/system/vector.service
+        mode: "644"
+        owner: "{{ ansible_user_id }}"
+        group: "{{ ansible_user_gid }}"
+      tags: vector
+    - name: Vector | Start service
+      become: true
+      ansible.builtin.systemd:
+        name: vector
+        state: started
+        daemon_reload: true
+      tags: vector
