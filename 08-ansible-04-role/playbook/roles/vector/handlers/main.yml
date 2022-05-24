@@ -1,0 +1,8 @@
+---
+# handlers file for vector
+- name: start_vector
+  become: true
+  ansible.builtin.systemd:
+    name: vector
+    state: started
+    daemon_reload: true

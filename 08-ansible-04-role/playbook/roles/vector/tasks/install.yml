@@ -1,0 +1,6 @@
+---
+- name: Vector | Install package
+  become: true
+  ansible.builtin.yum:
+    name: "{{ vector_url }}"
+    state: present
