@@ -1,0 +1,11 @@
+---
+  - name: Testing collection playbook
+    hosts: localhost
+    collections:
+      - my_own_collection.yc_clickhouse_stack
+    vars:
+      - file_path: "./test_collection.txt"
+      - file_content: "Test collection"
+    roles:
+      - 08-ansible-06
+    

@@ -1,0 +1,4 @@
+collections:
+  - name: git@github.com:rpotsel/my_own_collection.git#yc_clickhouse_stack
+    type: git
+    version: main
