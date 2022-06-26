@@ -1,0 +1,27 @@
+node('linux'){
+    stage('Git checkout'){
+        git branch: 'master', credentialsId: 'd8be152c-fa28-4a57-84cb-bc47e578ab8d', url: 'git@github.com:aragastmatb/example-playbook.git'
+    }
+    stage('Insall role'){
+        sshagent(credentials: ['d8be152c-fa28-4a57-84cb-bc47e578ab8d']) {
+            sh 'ansible-galaxy install -r requirements.yml -p roles'
+        }
+        //sh '''
+        //    ansible-vault decrypt secret --vault-password-file ${SECRET}
+        //    mkdir -p ~/.ssh/ && mv ./secret ~/.ssh/id_rsa && chmod 400 ~/.ssh/id_rsa
+        //    echo -e "Host github.com\\n   StrictHostKeyChecking no\\n   UserKnownHostsFile=/dev/null" > ~/.ssh/config
+        //    ansible-galaxy install -r requirements.yml -p roles
+        //'''
+    }
+    stage('Run Playbook'){
+        if ( "${prod_run}" == "true" ){
+            sh 'ansible-playbook -i inventory/prod.yml site.yml'
+        }
+        else{
+            sh 'ansible-playbook -i inventory/prod.yml site.yml --check --diff'
+        }
+        stage('Delete workspace') {
+            cleanWs()
+        }
+    }
+}
