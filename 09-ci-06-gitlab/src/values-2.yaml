@@ -1,0 +1,23 @@
+---
+imagePullPolicy: IfNotPresent
+gitlabUrl: http://51.250.88.173/
+runnerRegistrationToken: "GR1348941eBh9m3PZ4sKGef3eLspc"
+terminationGracePeriodSeconds: 3600
+concurrent: 10
+checkInterval: 30
+sessionServer:
+ enabled: false
+rbac:
+  create: true
+  clusterWideAccess: true
+  podSecurityPolicy:
+    enabled: false
+    resourceNames:
+      - gitlab-runner-2
+runners:
+  config: |
+    [[runners]]
+      [runners.kubernetes]
+        namespace = "{{.Release.Namespace}}"
+        image = "ubuntu:20.04"
+        privileged = true
