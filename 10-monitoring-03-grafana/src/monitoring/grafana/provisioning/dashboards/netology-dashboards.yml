@@ -1,0 +1,13 @@
+apiVersion: 1
+
+providers:
+  - name: Netology    # A uniquely identifiable name for the provider
+    folder: '' # The folder where to place the dashboards
+    orgId: 1
+    type: file
+    disableDeletion: false
+    editable: true
+    updateIntervalSeconds: 15
+    options:
+      path: /etc/grafana/provisioning/dashboards
+            # Default path for Linux is: /var/lib/grafana/dashboards

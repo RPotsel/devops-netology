@@ -1,0 +1,20 @@
+# https://prometheus.io/docs/prometheus/latest/configuration/configuration/
+global:
+  # How frequently to scrape targets by default.
+  # default = 1m
+  scrape_interval:     15s
+
+scrape_configs:
+
+  - job_name: 'node-exporter'
+    # How frequently to scrape targets from this job.
+    # default = <global_config.scrape_interval>
+    scrape_interval: 5s
+    # List of labeled statically configured targets for this job.
+    static_configs:
+      - targets: ['node-exporter:9100']
+
+  - job_name: 'prometheus'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['localhost:9090']
