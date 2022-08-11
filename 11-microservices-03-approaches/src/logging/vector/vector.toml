@@ -1,0 +1,29 @@
+# docker exec -it -u 0 src-vector-1 vector --config /etc/vector/vector.toml -w
+# docker exec -it -u 0 src-vector-1 vector tap
+# --inputs-of "docker_logs_transform"
+[api]
+enabled = true
+
+[sources.docker_logs_source]
+type = "docker_logs"
+include_containers = [ "src-storage",
+                       "src-uploader",
+                       "src-security",
+                       "src-gateway" ]
+
+# remove field label - error: can't merge a non object mapping [label.com.docker.compose.project]
+[transforms.docker_logs_transform]
+type = "remove_fields"
+inputs = ["docker_logs_source"]
+fields = ["label"]
+
+[sinks.my_sink_id]
+type = "elasticsearch"
+inputs = ["docker_logs_transform"]
+endpoint = "http://elasticsearch:9200"
+mode = "bulk"
+compression = "none"
+bulk.index = "vector-%Y-%m-%d"
+auth.strategy = "basic"
+auth.user = "${ADMIN_USERNAME}"
+auth.password = "${ADMIN_PASSWORD}"

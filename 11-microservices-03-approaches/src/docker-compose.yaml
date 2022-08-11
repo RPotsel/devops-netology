@@ -1,0 +1,155 @@
+volumes:
+  data: {}
+  prometheus-data: {}
+  grafana_data: {}
+  es_data: {}
+
+services:
+  storage:
+    image: minio/minio:latest
+    command: server --console-address ":9001" /data
+    restart: always
+    expose:
+      - 9000
+    environment:
+      MINIO_ROOT_USER: ${Storage_AccessKey:-STORAGE_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${Storage_Secret:-STORAGE_SECRET_KEY}
+      MINIO_PROMETHEUS_AUTH_TYPE: public
+    volumes:
+      - data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  createbuckets:
+    image: minio/mc
+    depends_on:
+      - storage
+    restart: on-failure
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc config host add storage http://storage:9000 ${Storage_AccessKey-STORAGE_ACCESS_KEY} ${Storage_Secret-STORAGE_SECRET_KEY} &&
+      /usr/bin/mc mb --ignore-existing storage/${Storage_Bucket:-data} &&
+      /usr/bin/mc policy set download storage/${Storage_Bucket:-data} &&
+      exit 0;
+      "
+
+  uploader:
+    build: ./uploader
+    depends_on:
+      - storage
+      - createbuckets
+    expose: 
+      - 3000
+    environment:
+      PORT: 3000
+      S3_HOST: storage
+      S3_PORT: 9000
+      S3_ACCESS_KEY: ${Storage_AccessKey:-STORAGE_ACCESS_KEY}
+      S3_ACCESS_SECRET: ${Storage_Secret:-STORAGE_SECRET_KEY}
+      S3_BUCKET: ${Storage_Bucket:-STORAGE_BUCKET}
+  
+  security:
+    build: ./security
+    expose: 
+      - 3000
+    environment:
+      PORT: 3000
+
+  gateway:
+    image: nginx:alpine
+    volumes:
+      - ./gateway/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - 80:80
+      - 9091:9091
+      - 9092:9092
+      - 9093:9093
+    depends_on:
+      - storage
+      - uploader
+      - security
+      - grafana
+
+  # logging
+  elasticsearch:
+    image: elasticsearch:7.17.5
+    expose:
+      - 9200
+      - 9300
+    environment:
+      discovery.type: single-node
+      cluster.routing.allocation.disk.threshold_enabled: true
+      xpack.security.enabled: true
+      # password for def user elastic
+      ELASTIC_PASSWORD: ${ADMIN_PASSWORD:-admin}
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: curl -w %{http_code} -f -s -o /dev/null -u elastic:${ADMIN_PASSWORD:-admin} localhost:9200
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  initializer:
+    image: curlimages/curl
+    volumes:
+      - ./logging/elasticsearch/initializer.sh:/initializer.sh:ro
+    env_file:
+      - .env
+    command:  sh -c ./initializer.sh
+    depends_on:
+      - elasticsearch
+
+  kibana:
+    image: kibana:7.17.5
+    expose:
+      - 5601
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+      xpack.security.enabled: true
+      ELASTICSEARCH_USERNAME: kibana_system
+      ELASTICSEARCH_PASSWORD: ${ADMIN_PASSWORD:-admin}
+    depends_on:
+      - initializer
+
+  vector:
+    image: timberio/vector:0.23.0-debian
+    expose:
+      - 8686
+    env_file:
+      - .env
+    volumes:
+      - ./logging/vector/vector.toml:/etc/vector/vector.toml:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - initializer
+
+  # monitoring
+  prometheus:
+    image: prom/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=${PROMETHEUS_RETENTION:-240h}' # It defines how long data is kept in TSDB. The default is 15 days
+    volumes:
+      - ./monitoring/prometheus:/etc/prometheus
+      - prometheus-data:/prometheus
+    expose:
+      - 9090
+
+  grafana:
+    image: grafana/grafana:7.5.10
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=${ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    expose:
+      - 3000
+    depends_on:
+      - prometheus
