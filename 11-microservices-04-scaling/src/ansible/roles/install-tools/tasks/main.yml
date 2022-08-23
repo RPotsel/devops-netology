@@ -1,0 +1,9 @@
+---
+  - name: Installing tools
+    ansible.builtin.yum: >
+      name={{ item }}
+      state=present
+      update_cache=yes
+    with_items:
+      - ntp
+      - wget

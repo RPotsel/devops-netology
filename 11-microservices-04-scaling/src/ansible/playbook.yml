@@ -1,0 +1,65 @@
+---
+- name: Install Requrements Tools
+  hosts: all
+  become: true
+  gather_facts: true
+  roles:
+    - install-tools
+    - configure-hosts-file
+  tags: packages
+
+- name: Install Redis Master
+  hosts: all
+  become: true
+  gather_facts: false
+  vars:
+    redis_port: 6379
+  roles:
+    - redis
+  tags: redis-master
+
+- name: Install Redis Slave
+  hosts: all
+  become: true
+  gather_facts: false
+  vars:
+    redis_port: 6480
+  roles:
+    - redis
+  tags: redis-slave
+
+- name: Configure 3 nodes redis cluster
+  hosts: redis01
+  gather_facts: false
+  tags: cluster
+  vars:
+    master_port: 6379
+    slave_port:  6480
+
+  tasks:
+    - name: Run redis-cli commands
+      ansible.builtin.shell: |
+        add_node(){
+          master_id=$(redis-cli -h \
+            "$1" -p {{ master_port }} CLUSTER NODES | grep myself | cut -d" "  -f1)
+
+          redis-cli --cluster add-node \
+            "$2":{{ slave_port }} \
+            "$1":{{ master_port }} \
+            --cluster-slave --cluster-master-id $master_id
+        }
+
+        redis-cli -p {{ master_port }} --cluster create \
+          redis01:{{ master_port }} \
+          redis02:{{ master_port }} \
+          redis03:{{ master_port }} \
+          --cluster-yes
+
+        add_node "redis01" "redis02"
+        add_node "redis02" "redis03"
+        add_node "redis03" "redis01"
+
+        exit 0
+      register: out
+
+    - debug: var=out.stdout_lines

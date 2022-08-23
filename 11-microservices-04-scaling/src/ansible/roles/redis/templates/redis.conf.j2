@@ -1,0 +1,10 @@
+protected-mode no
+port {{ redis_port }}
+logfile /var/log/redis/redis-{{ redis_port }}.log
+pidfile /var/run/redis/redis-{{ redis_port }}.pid
+dir /var/lib/redis/{{ redis_port }}
+cluster-enabled yes
+cluster-config-file nodes-{{ redis_port }}.conf
+cluster-node-timeout 15000
+maxclients 4064
+appendonly yes

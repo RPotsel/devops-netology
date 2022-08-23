@@ -1,0 +1,15 @@
+---
+- name: Redis | Install
+  include: install.yml
+  tags:
+    - redis_install
+
+- name: Redis | Configure
+  include: config.yml
+  tags:
+    - redis_configure
+
+- name: Redis | Service
+  include: service.yml
+  tags:
+    - redis_service

@@ -1,0 +1,47 @@
+---
+- name: Create redis working directory
+  become: true
+  ansible.builtin.file:
+    path:  "{{ item.dest }}"
+    mode:  "{{ item.mode }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    state: directory
+  with_items:
+    - { dest: "/var/lib/redis/{{ redis_port }}", mode: '0750', owner: redis, group: redis}
+    - { dest: "/etc/systemd/system/redis-{{ redis_port }}.service.d", mode: '0755', owner: root, group: root}
+
+- name: Create redis conf files
+  become: true
+  ansible.builtin.template:
+    src: redis.conf.j2
+    dest: /etc/redis-{{ redis_port }}.conf
+    owner: redis
+    group: root
+    mode: '0640'
+
+- name: Config SELinux
+  become: true
+  command: "{{ item }}"
+  with_items:
+    - semanage port -a -t redis_port_t -p tcp {{ redis_port }}
+    - semanage port -a -t redis_port_t -p tcp 1{{ redis_port }}
+    - semanage port -a -t redis_port_t -p tcp 2{{ redis_port }}
+  ignore_errors: true
+
+# # Or we can Disable SELinux 
+# - name: Disable SELinux
+#   selinux:
+#     state: disabled
+
+- name: Manage entries in sysctl.conf
+  become: true
+  ansible.builtin.sysctl:
+    name:  "{{ item.key }}"
+    value: "{{ item.value }}"
+    sysctl_set: yes
+    state: present
+    reload: yes
+  with_items:
+    - { key: 'net.core.somaxconn', value: '512' }
+    - { key: 'vm.overcommit_memory', value: '1' }
