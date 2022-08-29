@@ -1,0 +1,43 @@
+---
+- name: Install Requrements Tools
+  hosts: minikube
+  gather_facts: true
+  roles:
+    - install-packages
+    - configure-hosts-file
+  tags: packages
+
+- name: Install Minikube
+  hosts: minikube
+  gather_facts: false
+  roles:
+    - install-minikube
+  tags: install
+
+- name: Add addons
+  hosts: minikube
+  gather_facts: false
+  roles:
+    - role: minikube-addon
+      addon: dashboard
+    - role: minikube-addon
+      addon: metrics-server
+    - role: minikube-addon
+      addon: ingress
+  tags: addons
+
+- name: Run Hello World Node application
+  hosts: minikube
+  gather_facts: false
+  tags: run_application
+
+  tasks:
+    - name: Copy manifests
+      copy: 
+        src: ./manifests
+        dest: ~/
+
+    - name: Run shell commands
+      shell: |
+        kubectl apply -f manifests/10-pod-hello-node.yml
+        kubectl apply -f manifests/20-service-hello-node.yml

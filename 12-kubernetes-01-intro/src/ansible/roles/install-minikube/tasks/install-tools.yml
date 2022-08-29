@@ -1,0 +1,27 @@
+---
+- name: Get k8s stable version
+  uri:
+    url: https://storage.googleapis.com/kubernetes-release/release/stable.txt
+    return_content: yes
+  register: k8s_version
+
+- name: Download kubeadm
+  become: true
+  get_url:
+    url: https://storage.googleapis.com/kubernetes-release/release/{{ k8s_version.content }}/bin/linux/amd64/kubeadm
+    dest: /usr/local/bin/kubeadm
+    mode: '0755'
+
+- name: Download kubectl
+  become: true
+  get_url:
+    url: https://storage.googleapis.com/kubernetes-release/release/{{ k8s_version.content }}/bin/linux/amd64/kubectl
+    dest: /usr/local/bin/kubectl
+    mode: '0755'
+
+- name: Download Minikube
+  become: true
+  get_url:
+    url: https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+    dest: /usr/local/bin/minikube
+    mode: '0755'
