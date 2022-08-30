@@ -1,0 +1,10 @@
+---
+- name: Check Minikube status
+  command: minikube status
+  register: minikube_status
+  changed_when: false
+  ignore_errors: true
+
+- name: Start Minikube
+  command: minikube start --vm-driver=docker
+  when: "not minikube_status.stdout or 'Running' not in minikube_status.stdout"

@@ -1,0 +1,75 @@
+---
+- name: Get cri-tools version
+  uri:
+    url: https://api.github.com/repos/kubernetes-sigs/cri-tools/releases/latest
+    return_content: yes
+  register: result
+- set_fact: cri_tools_version="{{ result.content | from_json | json_query('tag_name')}}"
+
+- name: Download .tar.gz file cri-tools
+  get_url:
+    url: https://github.com/kubernetes-sigs/cri-tools/releases/download/{{ cri_tools_version }}/crictl-{{ cri_tools_version }}-linux-amd64.tar.gz
+    dest: /tmp/crictl-{{ cri_tools_version }}.tar.gz
+
+- name: Extract cri-tools
+  become: true
+  unarchive:
+    copy: false
+    src: /tmp/crictl-{{ cri_tools_version }}.tar.gz
+    dest: /usr/local/bin
+    mode: '0755'
+
+- name: Get cri-dockerd version
+  uri:
+    url: https://api.github.com/repos/Mirantis/cri-dockerd/releases/latest
+    return_content: yes
+  register: result
+- set_fact: > 
+    cri_dockerd_version="{{ result.content | from_json | json_query('tag_name')
+                         | regex_replace('v(.*)', '\\1') }}"
+
+- name: Download .tgz file cri-dockerd
+  get_url:
+    url: https://github.com/Mirantis/cri-dockerd/releases/download/v{{ cri_dockerd_version }}/cri-dockerd-{{ cri_dockerd_version }}.amd64.tgz
+    dest: /tmp/cri-dockerd-{{ cri_dockerd_version }}.tgz
+
+- name: Extract cri-dockerd
+  become: true
+  unarchive:
+    copy: false
+    src: /tmp/cri-dockerd-{{ cri_dockerd_version }}.tgz
+    dest: /usr/local/bin
+    mode: '0755'
+    extra_opts: [--strip-components=1]
+
+- name: Create cri-docker service
+  become: true
+  template:
+    src: cri-docker.service.j2
+    dest: /etc/systemd/system/cri-docker.service
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Create cri-docker socket service
+  become: true
+  template:
+    src: cri-docker.socket.j2
+    dest: /etc/systemd/system/cri-docker.socket
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Enable cri-docker service
+  become: true
+  service:
+    name: cri-docker.service
+    daemon_reload: true
+    enabled: yes
+
+- name: Start cri-docker socket
+  become: true
+  service:
+    name: cri-docker.socket
+    state: restarted
+    enabled: yes

@@ -1,0 +1,21 @@
+---
+- name: Install tools
+  include: install-tools.yml
+  tags:
+    - install_tools
+
+- name: Install CRI
+  include: install-cri.yml
+  tags:
+    - install_cri
+  when: cri is defined
+
+- name: Configure
+  include: configure.yml
+  tags:
+    - configure
+
+- name: Start
+  include: start.yml
+  tags:
+    - minikube_start

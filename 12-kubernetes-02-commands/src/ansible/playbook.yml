@@ -1,0 +1,38 @@
+---
+- name: Install Requrements Tools
+  hosts: minikube
+  gather_facts: true
+  roles:
+    - install-packages
+    - configure-hosts-file
+  tags: packages
+
+- name: Install Minikube
+  hosts: minikube
+  gather_facts: false
+  roles:
+    - install-minikube
+  tags: install
+
+- name: Add addons
+  hosts: minikube
+  gather_facts: false
+  roles:
+    - role: minikube-addon
+      addon: dashboard
+    - role: minikube-addon
+      addon: metrics-server
+    - role: minikube-addon
+      addon: ingress
+  tags: addons
+
+- name: Run tasks
+  hosts: minikube
+  gather_facts: false
+  tags: run_tasks
+
+  tasks:
+    - name: Copy manifests
+      copy: 
+        src: ./manifests
+        dest: ~/

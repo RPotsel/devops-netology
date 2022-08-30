@@ -1,0 +1,10 @@
+---
+- name: Checking the addon {{ addon }} on
+  shell: minikube addons list | grep {{ addon }}.*enabled
+  register: check_addon
+  changed_when: False
+  failed_when: False
+
+- name: Enable addon {{ addon }}
+  command: minikube addons enable {{ addon }}
+  when: check_addon.rc != 0

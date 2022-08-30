@@ -1,9 +1,0 @@
----
-all:
-  hosts:
-    minikube:
-      ansible_host: 51.250.82.156
-
-  vars:
-    ansible_connection_type: ssh
-    ansible_user: ubuntu
