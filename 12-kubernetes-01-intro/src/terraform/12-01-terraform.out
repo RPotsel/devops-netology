@@ -1,0 +1,492 @@
+  $ terraform destroy --auto-approve
+yandex_vpc_network.default: Refreshing state... [id=enpbibpvubpsnaoo3mq2]
+yandex_vpc_subnet.default: Refreshing state... [id=e9b0athav4i0mi2t9bjq]
+yandex_compute_instance.vm["minikube"]: Refreshing state... [id=fhmlkanueivj5oijo25i]
+local_file.inventory: Refreshing state... [id=57a0e641a30bae46515c70a57f3bd0202af2c55d]
+null_resource.wait: Refreshing state... [id=8683716709905003829]
+null_resource.cluster: Refreshing state... [id=8973222794517528014]
+
+Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with
+the following symbols:
+  - destroy
+
+Terraform will perform the following actions:
+
+  # local_file.inventory will be destroyed
+  - resource "local_file" "inventory" {
+      - content              = <<-EOT
+            ---
+            all:
+              hosts:
+                minikube:
+                  ansible_host: 51.250.95.175
+            
+              vars:
+                ansible_connection_type: ssh
+                ansible_user: ubuntu
+        EOT -> null
+      - directory_permission = "0777" -> null
+      - file_permission      = "0777" -> null
+      - filename             = "../ansible/inventory" -> null
+      - id                   = "57a0e641a30bae46515c70a57f3bd0202af2c55d" -> null
+    }
+
+  # null_resource.cluster will be destroyed
+  - resource "null_resource" "cluster" {
+      - id = "8973222794517528014" -> null
+    }
+
+  # null_resource.wait will be destroyed
+  - resource "null_resource" "wait" {
+      - id = "8683716709905003829" -> null
+    }
+
+  # yandex_compute_instance.vm["minikube"] will be destroyed
+  - resource "yandex_compute_instance" "vm" {
+      - allow_stopping_for_update = true -> null
+      - created_at                = "2022-08-29T18:19:41Z" -> null
+      - folder_id                 = "b1gu9vr18o6v8qc41svt" -> null
+      - fqdn                      = "minikube.netology.cloud" -> null
+      - hostname                  = "minikube.netology.cloud" -> null
+      - id                        = "fhmlkanueivj5oijo25i" -> null
+      - labels                    = {} -> null
+      - metadata                  = {
+          - "ssh-keys" = <<-EOT
+                ubuntu:ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDhXQBByx3eebcM4Cm0FgpYF+pyh1lsJqYy6dAuKpL4g5XhRmuuvkPn2JG8m9KAh15QvazxaeeKaCC9BzKDofRq2/XjJxxi3V44wODiynH0SeVlQn6PjLgozG/VOGR9AXL5GQDy4gVMCIYHPXJSOZtUoohOWZ3jP3sOWcKZZ62hrCcKQ0CYKDpsgaICCvajrPFNd4mQE6PG8QSrFtULboFFHJxQ/YSZuAVy7Zpq6L+A6FAaL1hGSR5uKs84OCgo28zxJJFZo6BRmlFLwW1DdNOnBlMaKaVY1fqckgj5/oUmSqWNjBuOp+P9fH1uRIrClg8diB9fpLMAFxYQPMStYVnYJ3zKkNePZgqbfaazluET/LIO14CClDA2NZ51leeDEWxoqiu69YVlMm/SE69tzqkUa2sr27Yzv5s72r740mZRfmkoPlXH/U7vh+K0Q7h1988qwixCmqCI9N84eSZe0cQU/cy7wO2H4qRToogRFiASwrpJmKN/XAXwYLJiRena6m7y0unpveWQ9zJIwTY3vk0XrFwfYHOg003yP0IYkfHhLbdouRPQSn1715fPWOHnYvroQevyfbkP+2FmbbreVK82uj3u6P88CrJp+RpftWq9vf00mtobV5iXpO1nLeXGukYl/MHXts5dlpmHS2F3prU7u65YDzSJQm3mHZgQlmTwbQ== rpot@rp-srv-ntlg03
+            EOT
+        } -> null
+      - name                      = "minikube" -> null
+      - network_acceleration_type = "standard" -> null
+      - platform_id               = "standard-v1" -> null
+      - status                    = "running" -> null
+      - zone                      = "ru-central1-a" -> null
+
+      - boot_disk {
+          - auto_delete = true -> null
+          - device_name = "fhm645dkr7js2pf0ccp9" -> null
+          - disk_id     = "fhm645dkr7js2pf0ccp9" -> null
+          - mode        = "READ_WRITE" -> null
+
+          - initialize_params {
+              - block_size = 4096 -> null
+              - image_id   = "fd8kdq6d0p8sij7h5qe3" -> null
+              - name       = "root-minikube" -> null
+              - size       = 20 -> null
+              - type       = "network-ssd" -> null
+            }
+        }
+
+      - network_interface {
+          - index              = 0 -> null
+          - ip_address         = "192.168.101.12" -> null
+          - ipv4               = true -> null
+          - ipv6               = false -> null
+          - mac_address        = "d0:0d:15:a2:af:e7" -> null
+          - nat                = true -> null
+          - nat_ip_address     = "51.250.95.175" -> null
+          - nat_ip_version     = "IPV4" -> null
+          - security_group_ids = [] -> null
+          - subnet_id          = "e9b0athav4i0mi2t9bjq" -> null
+        }
+
+      - placement_policy {
+          - host_affinity_rules = [] -> null
+        }
+
+      - resources {
+          - core_fraction = 100 -> null
+          - cores         = 2 -> null
+          - gpus          = 0 -> null
+          - memory        = 4 -> null
+        }
+
+      - scheduling_policy {
+          - preemptible = false -> null
+        }
+    }
+
+  # yandex_vpc_network.default will be destroyed
+  - resource "yandex_vpc_network" "default" {
+      - created_at = "2022-08-29T18:19:39Z" -> null
+      - folder_id  = "b1gu9vr18o6v8qc41svt" -> null
+      - id         = "enpbibpvubpsnaoo3mq2" -> null
+      - labels     = {} -> null
+      - name       = "net" -> null
+      - subnet_ids = [
+          - "e9b0athav4i0mi2t9bjq",
+        ] -> null
+    }
+
+  # yandex_vpc_subnet.default will be destroyed
+  - resource "yandex_vpc_subnet" "default" {
+      - created_at     = "2022-08-29T18:19:40Z" -> null
+      - folder_id      = "b1gu9vr18o6v8qc41svt" -> null
+      - id             = "e9b0athav4i0mi2t9bjq" -> null
+      - labels         = {} -> null
+      - name           = "subnet" -> null
+      - network_id     = "enpbibpvubpsnaoo3mq2" -> null
+      - v4_cidr_blocks = [
+          - "192.168.101.0/24",
+        ] -> null
+      - v6_cidr_blocks = [] -> null
+      - zone           = "ru-central1-a" -> null
+    }
+
+Plan: 0 to add, 0 to change, 6 to destroy.
+
+Changes to Outputs:
+  - external_ip_address_instace = [
+      - "51.250.95.175",
+    ] -> null
+  - internal_ip_address_instace = [
+      - "192.168.101.12",
+    ] -> null
+null_resource.cluster: Destroying... [id=8973222794517528014]
+null_resource.cluster: Destruction complete after 0s
+null_resource.wait: Destroying... [id=8683716709905003829]
+null_resource.wait: Destruction complete after 0s
+local_file.inventory: Destroying... [id=57a0e641a30bae46515c70a57f3bd0202af2c55d]
+local_file.inventory: Destruction complete after 0s
+yandex_compute_instance.vm["minikube"]: Destroying... [id=fhmlkanueivj5oijo25i]
+yandex_compute_instance.vm["minikube"]: Still destroying... [id=fhmlkanueivj5oijo25i, 10s elapsed]
+yandex_compute_instance.vm["minikube"]: Still destroying... [id=fhmlkanueivj5oijo25i, 20s elapsed]
+yandex_compute_instance.vm["minikube"]: Destruction complete after 30s
+yandex_vpc_subnet.default: Destroying... [id=e9b0athav4i0mi2t9bjq]
+yandex_vpc_subnet.default: Destruction complete after 2s
+yandex_vpc_network.default: Destroying... [id=enpbibpvubpsnaoo3mq2]
+yandex_vpc_network.default: Destruction complete after 1s
+
+Destroy complete! Resources: 6 destroyed.
+rpot@rp-srv-ntlg03:~/projects/devops-netology/12-kubernetes-01-intro/src/terraform
+  $ terraform apply --auto-approve
+
+Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with
+the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # local_file.inventory will be created
+  + resource "local_file" "inventory" {
+      + content              = (known after apply)
+      + directory_permission = "0777"
+      + file_permission      = "0777"
+      + filename             = "../ansible/inventory"
+      + id                   = (known after apply)
+    }
+
+  # null_resource.cluster will be created
+  + resource "null_resource" "cluster" {
+      + id = (known after apply)
+    }
+
+  # null_resource.wait will be created
+  + resource "null_resource" "wait" {
+      + id = (known after apply)
+    }
+
+  # yandex_compute_instance.vm["minikube"] will be created
+  + resource "yandex_compute_instance" "vm" {
+      + allow_stopping_for_update = true
+      + created_at                = (known after apply)
+      + folder_id                 = (known after apply)
+      + fqdn                      = (known after apply)
+      + hostname                  = "minikube.netology.cloud"
+      + id                        = (known after apply)
+      + metadata                  = {
+          + "ssh-keys" = <<-EOT
+                ubuntu:ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDhXQBByx3eebcM4Cm0FgpYF+pyh1lsJqYy6dAuKpL4g5XhRmuuvkPn2JG8m9KAh15QvazxaeeKaCC9BzKDofRq2/XjJxxi3V44wODiynH0SeVlQn6PjLgozG/VOGR9AXL5GQDy4gVMCIYHPXJSOZtUoohOWZ3jP3sOWcKZZ62hrCcKQ0CYKDpsgaICCvajrPFNd4mQE6PG8QSrFtULboFFHJxQ/YSZuAVy7Zpq6L+A6FAaL1hGSR5uKs84OCgo28zxJJFZo6BRmlFLwW1DdNOnBlMaKaVY1fqckgj5/oUmSqWNjBuOp+P9fH1uRIrClg8diB9fpLMAFxYQPMStYVnYJ3zKkNePZgqbfaazluET/LIO14CClDA2NZ51leeDEWxoqiu69YVlMm/SE69tzqkUa2sr27Yzv5s72r740mZRfmkoPlXH/U7vh+K0Q7h1988qwixCmqCI9N84eSZe0cQU/cy7wO2H4qRToogRFiASwrpJmKN/XAXwYLJiRena6m7y0unpveWQ9zJIwTY3vk0XrFwfYHOg003yP0IYkfHhLbdouRPQSn1715fPWOHnYvroQevyfbkP+2FmbbreVK82uj3u6P88CrJp+RpftWq9vf00mtobV5iXpO1nLeXGukYl/MHXts5dlpmHS2F3prU7u65YDzSJQm3mHZgQlmTwbQ== rpot@rp-srv-ntlg03
+            EOT
+        }
+      + name                      = "minikube"
+      + network_acceleration_type = "standard"
+      + platform_id               = "standard-v1"
+      + service_account_id        = (known after apply)
+      + status                    = (known after apply)
+      + zone                      = "ru-central1-a"
+
+      + boot_disk {
+          + auto_delete = true
+          + device_name = (known after apply)
+          + disk_id     = (known after apply)
+          + mode        = (known after apply)
+
+          + initialize_params {
+              + block_size  = (known after apply)
+              + description = (known after apply)
+              + image_id    = "fd8kdq6d0p8sij7h5qe3"
+              + name        = "root-minikube"
+              + size        = 20
+              + snapshot_id = (known after apply)
+              + type        = "network-ssd"
+            }
+        }
+
+      + network_interface {
+          + index              = (known after apply)
+          + ip_address         = (known after apply)
+          + ipv4               = true
+          + ipv6               = (known after apply)
+          + ipv6_address       = (known after apply)
+          + mac_address        = (known after apply)
+          + nat                = true
+          + nat_ip_address     = (known after apply)
+          + nat_ip_version     = (known after apply)
+          + security_group_ids = (known after apply)
+          + subnet_id          = (known after apply)
+        }
+
+      + placement_policy {
+          + host_affinity_rules = (known after apply)
+          + placement_group_id  = (known after apply)
+        }
+
+      + resources {
+          + core_fraction = 100
+          + cores         = 2
+          + memory        = 4
+        }
+
+      + scheduling_policy {
+          + preemptible = (known after apply)
+        }
+    }
+
+  # yandex_vpc_network.default will be created
+  + resource "yandex_vpc_network" "default" {
+      + created_at                = (known after apply)
+      + default_security_group_id = (known after apply)
+      + folder_id                 = (known after apply)
+      + id                        = (known after apply)
+      + labels                    = (known after apply)
+      + name                      = "net"
+      + subnet_ids                = (known after apply)
+    }
+
+  # yandex_vpc_subnet.default will be created
+  + resource "yandex_vpc_subnet" "default" {
+      + created_at     = (known after apply)
+      + folder_id      = (known after apply)
+      + id             = (known after apply)
+      + labels         = (known after apply)
+      + name           = "subnet"
+      + network_id     = (known after apply)
+      + v4_cidr_blocks = [
+          + "192.168.101.0/24",
+        ]
+      + v6_cidr_blocks = (known after apply)
+      + zone           = "ru-central1-a"
+    }
+
+Plan: 6 to add, 0 to change, 0 to destroy.
+
+Changes to Outputs:
+  + external_ip_address_instace = [
+      + (known after apply),
+    ]
+  + internal_ip_address_instace = [
+      + (known after apply),
+    ]
+yandex_vpc_network.default: Creating...
+yandex_vpc_network.default: Creation complete after 1s [id=enpmqj2nj9s9oq55la1n]
+yandex_vpc_subnet.default: Creating...
+yandex_vpc_subnet.default: Creation complete after 1s [id=e9blc6opqqfc03jk1dq7]
+yandex_compute_instance.vm["minikube"]: Creating...
+yandex_compute_instance.vm["minikube"]: Still creating... [10s elapsed]
+yandex_compute_instance.vm["minikube"]: Still creating... [20s elapsed]
+yandex_compute_instance.vm["minikube"]: Still creating... [30s elapsed]
+yandex_compute_instance.vm["minikube"]: Creation complete after 36s [id=fhmlcmm2fl30oavm6id9]
+local_file.inventory: Creating...
+local_file.inventory: Creation complete after 0s [id=2a848a6613bb749da40280803ccf058eaa382d73]
+null_resource.wait: Creating...
+null_resource.wait: Provisioning with 'local-exec'...
+null_resource.wait (local-exec): Executing: ["/bin/sh" "-c" "sleep 30"]
+null_resource.wait: Still creating... [10s elapsed]
+null_resource.wait: Still creating... [20s elapsed]
+null_resource.wait: Still creating... [30s elapsed]
+null_resource.wait: Creation complete after 30s [id=9166134868041435225]
+null_resource.cluster: Creating...
+null_resource.cluster: Provisioning with 'local-exec'...
+null_resource.cluster (local-exec): Executing: ["/bin/sh" "-c" "ANSIBLE_FORCE_COLOR=1 ansible-playbook -i inventory playbook.yml"]
+
+null_resource.cluster (local-exec): PLAY [Install Requrements Tools] ***********************************************
+
+null_resource.cluster (local-exec): TASK [Gathering Facts] *********************************************************
+null_resource.cluster (local-exec): ok: [minikube]
+
+null_resource.cluster (local-exec): TASK [install-packages : Install packages] *************************************
+null_resource.cluster: Still creating... [10s elapsed]
+null_resource.cluster: Still creating... [20s elapsed]
+null_resource.cluster: Still creating... [30s elapsed]
+null_resource.cluster: Still creating... [40s elapsed]
+null_resource.cluster: Still creating... [50s elapsed]
+null_resource.cluster (local-exec): changed: [minikube] => (item=conntrack)
+null_resource.cluster: Still creating... [1m0s elapsed]
+null_resource.cluster: Still creating... [1m10s elapsed]
+null_resource.cluster: Still creating... [1m20s elapsed]
+null_resource.cluster: Still creating... [1m30s elapsed]
+null_resource.cluster: Still creating... [1m40s elapsed]
+null_resource.cluster: Still creating... [1m50s elapsed]
+null_resource.cluster: Still creating... [2m0s elapsed]
+null_resource.cluster (local-exec): changed: [minikube] => (item=docker.io)
+null_resource.cluster: Still creating... [2m10s elapsed]
+null_resource.cluster (local-exec): ok: [minikube] => (item=iproute2)
+null_resource.cluster: Still creating... [2m20s elapsed]
+null_resource.cluster (local-exec): changed: [minikube] => (item=socat)
+
+null_resource.cluster (local-exec): TASK [configure-hosts-file : Configure Hosts File] *****************************
+null_resource.cluster (local-exec): changed: [minikube] => (item=minikube)
+
+null_resource.cluster (local-exec): PLAY [Install Minikube] ********************************************************
+
+null_resource.cluster (local-exec): TASK [install-minikube : Get k8s stable version] *******************************
+null_resource.cluster (local-exec): ok: [minikube]
+
+null_resource.cluster (local-exec): TASK [install-minikube : Download kubeadm] *************************************
+null_resource.cluster: Still creating... [2m30s elapsed]
+null_resource.cluster (local-exec): changed: [minikube]
+
+null_resource.cluster (local-exec): TASK [install-minikube : Download kubectl] *************************************
+null_resource.cluster (local-exec): changed: [minikube]
+
+null_resource.cluster (local-exec): TASK [install-minikube : Download Minikube] ************************************
+null_resource.cluster (local-exec): changed: [minikube]
+
+null_resource.cluster (local-exec): TASK [install-minikube : Get cri-tools version] ********************************
+null_resource.cluster (local-exec): skipping: [minikube]
+
+null_resource.cluster (local-exec): TASK [install-minikube : set_fact] *********************************************
+null_resource.cluster (local-exec): skipping: [minikube]
+
+null_resource.cluster (local-exec): TASK [install-minikube : Download .tar.gz file cri-tools] **********************
+null_resource.cluster (local-exec): skipping: [minikube]
+
+null_resource.cluster (local-exec): TASK [install-minikube : Extract cri-tools] ************************************
+null_resource.cluster (local-exec): skipping: [minikube]
+
+null_resource.cluster (local-exec): TASK [install-minikube : Get cri-dockerd version] ******************************
+null_resource.cluster (local-exec): skipping: [minikube]
+
+null_resource.cluster (local-exec): TASK [install-minikube : set_fact] *********************************************
+null_resource.cluster (local-exec): skipping: [minikube]
+
+null_resource.cluster (local-exec): TASK [install-minikube : Download .tgz file cri-dockerd] ***********************
+null_resource.cluster (local-exec): skipping: [minikube]
+
+null_resource.cluster (local-exec): TASK [install-minikube : Extract cri-dockerd] **********************************
+null_resource.cluster (local-exec): skipping: [minikube]
+
+null_resource.cluster (local-exec): TASK [install-minikube : Create cri-docker service] ****************************
+null_resource.cluster (local-exec): skipping: [minikube]
+
+null_resource.cluster (local-exec): TASK [install-minikube : Create cri-docker socket service] *********************
+null_resource.cluster (local-exec): skipping: [minikube]
+
+null_resource.cluster (local-exec): TASK [install-minikube : Enable cri-docker service] ****************************
+null_resource.cluster (local-exec): skipping: [minikube]
+
+null_resource.cluster (local-exec): TASK [install-minikube : Start cri-docker socket] ******************************
+null_resource.cluster (local-exec): skipping: [minikube]
+
+null_resource.cluster (local-exec): TASK [install-minikube : add user to docker group] *****************************
+null_resource.cluster: Still creating... [2m40s elapsed]
+null_resource.cluster (local-exec): changed: [minikube]
+
+null_resource.cluster (local-exec): TASK [install-minikube : reset ssh connection to allow user changes to affect ansible user] ***
+
+null_resource.cluster (local-exec): TASK [install-minikube : Check Minikube status] ********************************
+null_resource.cluster (local-exec): fatal: [minikube]: FAILED! => {"changed": false, "cmd": ["minikube", "status"], "delta": "0:00:00.130949", "end": "2022-08-29 19:49:52.675291", "msg": "non-zero return code", "rc": 85, "start": "2022-08-29 19:49:52.544342", "stderr": "", "stderr_lines": [], "stdout": "* Profile \"minikube\" not found. Run \"minikube profile list\" to view all profiles.\n  To start a cluster, run: \"minikube start\"", "stdout_lines": ["* Profile \"minikube\" not found. Run \"minikube profile list\" to view all profiles.", "  To start a cluster, run: \"minikube start\""]}
+null_resource.cluster (local-exec): ...ignoring
+
+null_resource.cluster (local-exec): TASK [install-minikube : Start Minikube] ***************************************
+null_resource.cluster: Still creating... [2m50s elapsed]
+null_resource.cluster: Still creating... [3m0s elapsed]
+null_resource.cluster: Still creating... [3m10s elapsed]
+null_resource.cluster: Still creating... [3m20s elapsed]
+null_resource.cluster: Still creating... [3m30s elapsed]
+null_resource.cluster: Still creating... [3m40s elapsed]
+null_resource.cluster: Still creating... [3m50s elapsed]
+null_resource.cluster: Still creating... [4m0s elapsed]
+null_resource.cluster: Still creating... [4m10s elapsed]
+null_resource.cluster: Still creating... [4m20s elapsed]
+null_resource.cluster: Still creating... [4m30s elapsed]
+null_resource.cluster: Still creating... [4m40s elapsed]
+null_resource.cluster: Still creating... [4m50s elapsed]
+null_resource.cluster: Still creating... [5m0s elapsed]
+null_resource.cluster: Still creating... [5m10s elapsed]
+null_resource.cluster: Still creating... [5m20s elapsed]
+null_resource.cluster: Still creating... [5m30s elapsed]
+null_resource.cluster: Still creating... [5m40s elapsed]
+null_resource.cluster: Still creating... [5m50s elapsed]
+null_resource.cluster: Still creating... [6m0s elapsed]
+null_resource.cluster: Still creating... [6m10s elapsed]
+null_resource.cluster: Still creating... [6m20s elapsed]
+null_resource.cluster: Still creating... [6m30s elapsed]
+null_resource.cluster: Still creating... [6m40s elapsed]
+null_resource.cluster: Still creating... [6m50s elapsed]
+null_resource.cluster: Still creating... [7m0s elapsed]
+null_resource.cluster: Still creating... [7m10s elapsed]
+null_resource.cluster: Still creating... [7m20s elapsed]
+null_resource.cluster: Still creating... [7m30s elapsed]
+null_resource.cluster: Still creating... [7m40s elapsed]
+null_resource.cluster: Still creating... [7m50s elapsed]
+null_resource.cluster: Still creating... [8m0s elapsed]
+null_resource.cluster: Still creating... [8m10s elapsed]
+null_resource.cluster (local-exec): changed: [minikube]
+
+null_resource.cluster (local-exec): PLAY [Add addons] **************************************************************
+
+null_resource.cluster (local-exec): TASK [minikube-addon : Checking the addon dashboard on] ************************
+null_resource.cluster (local-exec): ok: [minikube]
+
+null_resource.cluster (local-exec): TASK [minikube-addon : Enable addon dashboard] *********************************
+null_resource.cluster (local-exec): changed: [minikube]
+
+null_resource.cluster (local-exec): TASK [minikube-addon : Checking the addon metrics-server on] *******************
+null_resource.cluster (local-exec): ok: [minikube]
+
+null_resource.cluster (local-exec): TASK [minikube-addon : Enable addon metrics-server] ****************************
+null_resource.cluster: Still creating... [8m20s elapsed]
+null_resource.cluster (local-exec): changed: [minikube]
+
+null_resource.cluster (local-exec): TASK [minikube-addon : Checking the addon ingress on] **************************
+null_resource.cluster (local-exec): ok: [minikube]
+
+null_resource.cluster (local-exec): TASK [minikube-addon : Enable addon ingress] ***********************************
+null_resource.cluster: Still creating... [8m30s elapsed]
+null_resource.cluster: Still creating... [8m40s elapsed]
+null_resource.cluster: Still creating... [8m50s elapsed]
+null_resource.cluster: Still creating... [9m0s elapsed]
+null_resource.cluster: Still creating... [9m10s elapsed]
+null_resource.cluster: Still creating... [9m20s elapsed]
+null_resource.cluster: Still creating... [9m30s elapsed]
+null_resource.cluster: Still creating... [9m40s elapsed]
+null_resource.cluster: Still creating... [9m50s elapsed]
+null_resource.cluster: Still creating... [10m0s elapsed]
+null_resource.cluster: Still creating... [10m10s elapsed]
+null_resource.cluster (local-exec): changed: [minikube]
+
+null_resource.cluster (local-exec): PLAY [Run Hello World Node application] ****************************************
+
+null_resource.cluster (local-exec): TASK [Copy manifests] **********************************************************
+null_resource.cluster (local-exec): changed: [minikube]
+
+null_resource.cluster (local-exec): TASK [Run shell commands] ******************************************************
+null_resource.cluster (local-exec): changed: [minikube]
+
+null_resource.cluster (local-exec): PLAY RECAP *********************************************************************
+null_resource.cluster (local-exec): minikube                   : ok=18   changed=12   unreachable=0    failed=0    skipped=12   rescued=0    ignored=1   
+
+null_resource.cluster: Still creating... [10m20s elapsed]
+null_resource.cluster: Creation complete after 10m20s [id=7497986857580648474]
+
+Apply complete! Resources: 6 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+external_ip_address_instace = toset([
+  "51.250.82.156",
+])
+internal_ip_address_instace = toset([
+  "192.168.101.27",
+])

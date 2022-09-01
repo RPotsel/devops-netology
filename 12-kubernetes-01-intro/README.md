@@ -110,4 +110,4 @@ tcp       LISTEN     0           128                             [::]:22        
 
 - [Скрипты Terraform для создания ВМ](./src/terraform/)
 - [Ansible скрипты для установки необходимых пакетов и запуска minikube](./src/ansible/)
-- [Лог запуска Terraform](./src/terraform/12-01-terraform.log)
+- [Лог запуска Terraform](./src/terraform/12-01-terraform.out)
