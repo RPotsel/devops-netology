@@ -1,0 +1,25 @@
+---
+- name: Configuration
+  hosts: control01
+  gather_facts: true
+
+  tasks:
+    - name: Ensures kube dir exists
+      file:
+        path: ~/.kube
+        state: directory
+
+    - name: Copy config
+      become: true
+      copy:
+        src: /etc/kubernetes/admin.conf
+        dest: /home/{{ ansible_user }}/.kube/config
+        remote_src: true
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: 0600
+
+    - name: Copy manifests
+      copy:
+        src: ../manifests
+        dest: ~/
