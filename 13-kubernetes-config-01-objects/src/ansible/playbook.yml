@@ -1,0 +1,39 @@
+---
+- name: Configuration
+  hosts: control01
+  gather_facts: true
+
+  tasks:
+    - name: Ensures kube dir exists on remote host
+      file:
+        path: ~/.kube
+        state: directory
+
+    - name: Copy config on remote host
+      become: true
+      copy:
+        src: /etc/kubernetes/admin.conf
+        dest: /home/{{ ansible_user }}/.kube/config
+        remote_src: true
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: 0600
+
+    - name: Backup config on localhost
+      copy:
+        src: ~/.kube/config
+        dest: ~/.kube/config.{{ ansible_date_time.iso8601 }}.bak
+      delegate_to: localhost
+
+    - name: Store config into localhost
+      fetch:
+        src: /home/{{ ansible_user }}/.kube/config
+        dest: ~/.kube/
+        flat: true
+
+    - name: Replace server IP address in local config
+      replace:
+        path: ~/.kube/config
+        regexp: "server: https://[0-9.]*:"
+        replace: "server: https://{{ hostvars['control01']['ansible_host'] }}:"
+      delegate_to: localhost
