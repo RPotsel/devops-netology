@@ -1,0 +1,76 @@
+# postgres StatefulSet
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres-db
+  namespace: stage
+  labels:
+    app: postgres-db
+spec:
+  serviceName: postgres-db-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-db
+  template:
+    metadata:
+      labels:
+        app: postgres-db
+    spec:
+      containers:
+        - name: postgres-db
+          image: postgres:13-alpine
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: postgres
+              containerPort: 5432
+              protocol: TCP
+          # Resource Limits
+          resources:
+            requests:
+              memory: 265Mi
+              cpu: 250m
+            limits:
+              memory: 512Mi
+              cpu: 500m
+          # Data Volume
+          volumeMounts:
+            - name: postgres-db-disk
+              mountPath: /var/lib/postgres/data
+          # Environment variables
+          env:
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              value: postgres
+            - name: POSTGRES_DB
+              value: news
+  # Volume Claim
+  volumeClaimTemplates:
+  - metadata:
+      name: postgres-db-disk
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 256Mi
+      volumeName: pv-stage
+---
+# postgres service
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-db-cip
+  namespace: stage
+  labels:
+    app: postgres-db
+spec:
+  selector:
+    app: postgres-db
+  type: ClusterIP
+  ports:
+    - name: postgres-db
+      protocol: TCP
+      port: 5432
+      targetPort: 5432

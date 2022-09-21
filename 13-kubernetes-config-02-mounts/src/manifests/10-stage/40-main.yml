@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: main
+  namespace: stage
+  labels:
+    app: 13-02-main
+spec:
+  selector:
+    matchLabels:
+      app: 13-02-main
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: 13-02-main
+    spec:
+      initContainers:
+        - name: wait-postgres
+          image: postgres:13-alpine
+          imagePullPolicy: IfNotPresent
+          command:
+            - sh
+            - -ec
+            - |
+              until (pg_isready -h postgres-db-cip -p 5432 -U postgres); do
+                echo 'Wait postgres service'
+                sleep 1
+              done
+      containers:
+        - image: rpot/13-01-frontend:0.1
+          name: frontend
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - mountPath: "/static"
+              name: my-volume
+        - image: rpot/13-01-backend:0.1
+          imagePullPolicy: IfNotPresent
+          name: backend
+          volumeMounts:
+            - mountPath: "/static"
+              name: my-volume
+      volumes:
+        - name: my-volume
+          emptyDir: {}
