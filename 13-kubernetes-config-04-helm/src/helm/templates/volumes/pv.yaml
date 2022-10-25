@@ -1,0 +1,17 @@
+{{- $release := .Release.Name }}
+{{- $namespace := .Release.Namespace }}
+{{- if  .Values.global.pv.enabled }}
+{{- with .Values.global.pv  }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ $release }}-{{ .name }}-{{ $namespace }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: {{ .size }}
+  hostPath:
+    path: {{ .path }}
+{{ end }}
+{{ end }}

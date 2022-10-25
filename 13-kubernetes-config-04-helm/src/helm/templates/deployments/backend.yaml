@@ -1,0 +1,46 @@
+{{- $release := .Release.Name }}
+{{- $dbname := .Values.db.service.name }}
+{{- $imagePullPolicy := .Values.global.imagePullPolicy }}
+{{- with .Values.backend }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $release }}-{{ .app }}
+  labels:
+    app: {{ .app }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .app }}
+  replicas: {{ .replicas }}
+  template:
+    metadata:
+      labels:
+        app: {{ .app }}
+    spec:
+      initContainers:
+      - name: wait-postgres
+        image: postgres:13-alpine
+        imagePullPolicy: {{ $imagePullPolicy }}
+        command:
+        - sh
+        - -ec
+        - |
+          until (pg_isready -h {{ $release }}-{{ $dbname }} -p 5432 -U postgres); do
+            echo 'Wait postgres service'
+            sleep 1
+          done
+      containers:
+      - image: rpot/13-01-backend:{{ .version }}
+        imagePullPolicy: {{ $imagePullPolicy }}
+        name: backend
+        env:
+        {{- range $key, $val := .env }}
+        - name: {{ $val.name }}
+        {{- if contains "<ServicePort>" $val.value }}
+          value: {{ $val.value | replace "<ServicePort>" (print $release "-" $dbname) }}
+        {{- else }}
+          value: {{ $val.value }}
+        {{- end }}
+        {{- end }}
+{{- end }}

@@ -1,0 +1,20 @@
+{{- $release := .Release.Name }}
+{{- with .Values.backend }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $release }}-{{ .service.name }}
+  labels:
+    app: {{ .app }}
+spec:
+  selector:
+    app: {{ .app }}
+  type: ClusterIP
+  ports:
+  {{- range $key, $val := .service.ports }}
+  - name: {{ $val.name }}
+    protocol: {{ $val.protocol }}
+    port: {{ $val.port }}
+    targetPort: {{ $val.targetPort }}
+  {{- end }}
+{{ end }}

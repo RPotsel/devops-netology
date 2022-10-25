@@ -1,0 +1,62 @@
+{{- $release := .Release.Name }}
+{{- $namespace := .Release.Namespace }}
+{{- $imagePullPolicy := .Values.global.imagePullPolicy }}
+{{- with .Values.db }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ $release }}-{{ .app }}
+  labels:
+    app: {{ .app }}
+spec:
+  serviceName: {{ $release }}-postgres-db-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .app }}
+  template:
+    metadata:
+      labels:
+        app: {{ .app }}
+    spec:
+      containers:
+      - name: {{ .app }}
+        image: postgres:{{ .tag }}
+        imagePullPolicy: {{ $imagePullPolicy }}
+        # Resource Limits
+        resources:
+        {{- toYaml .resources | nindent 12 }}
+        # Ports
+        ports:
+        {{- range $key, $val := .ports }}
+        - name: {{ $val.name }}
+          containerPort: {{ $val.port }}
+          protocol: {{ $val.protocol }}
+        {{- end }}
+        # Environment variables
+        env:
+        {{- range $key, $val := .env }}
+        - name: {{ $val.name }}
+          value: {{ $val.value }}
+        {{- end }}
+        # Data Volume
+        volumeMounts:
+        {{- range $key, $val := .volumes }}
+        - name: {{ $val.name }}
+          mountPath: {{ $val.path }}
+        {{- end }}
+
+  # Volume Claim
+  volumeClaimTemplates:
+  {{- range $key, $val := .volumes }}
+  - metadata:
+      name: {{ $val.name }}
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: {{ $val.size }}
+      volumeName: {{ $release }}-{{ $val.pv }}-{{ $namespace }}
+  {{- end }}
+{{ end }}

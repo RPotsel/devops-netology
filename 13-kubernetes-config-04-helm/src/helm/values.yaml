@@ -1,0 +1,74 @@
+# Default values for helm.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+global:
+  imagePullPolicy: IfNotPresent
+  pv:
+    enabled: true
+    name: pv
+    size: 256Mi
+    path: /data/pv
+
+db:
+  app: postgres-db
+  tag: 13-alpine
+  resources:
+    requests:
+      memory: 265Mi
+      cpu: 250m
+    limits:
+      memory: 512Mi
+      cpu: 500m
+  ports:
+  - name: postgres
+    port: 5432
+    protocol: TCP
+  env:
+  - name: POSTGRES_USER
+    value: postgres
+  - name: POSTGRES_PASSWORD
+    value: postgres
+  - name: POSTGRES_DB
+    value: news
+  volumes:
+  - name: postgres-db-disk
+    path: /var/lib/postgres/data
+    pv: pv
+    size: 256Mi
+  service:
+    name: postgres-db-svc
+    ports:
+    - name: postgres-db
+      protocol: TCP
+      port: 5432
+      targetPort: 5432
+
+backend:
+  app: backend
+  version: 0.1
+  replicas: 1
+  env:
+  - name: DATABASE_URL
+    value: postgres://postgres:postgres@<ServicePort>:5432/news
+  service:
+    name: backend-svc
+    ports:
+    - name: backend
+      protocol: TCP
+      port: 9000
+      targetPort: 9000
+
+frontend:
+  app: frontend
+  version: 0.1
+  replicas: 1
+  env:
+  - name: BASE_URL
+    value: http://<ServicePort>:9000
+  service:
+    name: frontend-svc
+    ports:
+    - name: frontend
+      protocol: TCP
+      port: 80
+      targetPort: 80
