@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: secret-test-pod
+  labels:
+    name: secret-test
+spec:
+  volumes:
+  - name: certs
+    secret:
+      secretName: domain-cert
+  containers:
+  - name: dotfile-test-container
+    image: registry.k8s.io/busybox
+    command: ["/bin/sh", "-c"]
+    args:
+    - ls -l /etc/secret-volume;
+      env | grep SECRET
+    volumeMounts:
+    - name: certs
+      readOnly: true
+      mountPath: "/etc/secret-volume"
+    env:
+    - name: SECRET_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: credentials
+          key: username
+          optional: false # same as default; "credentials" must exist
+                          # and include a key named "username"
+    - name: SECRET_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: credentials
+          key: password
+          optional: false # same as default; "credentials" must exist
+                          # and include a key named "password"
+  restartPolicy: Never
