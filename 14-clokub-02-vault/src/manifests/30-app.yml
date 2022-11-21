@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: 14-2-secret
+spec:
+  containers:
+  - name: 14-2-secret
+    image: rpot/14-2-secret:0.2
+    imagePullPolicy: IfNotPresent
