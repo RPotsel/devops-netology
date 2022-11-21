@@ -1,0 +1,82 @@
+# Vault StatefulSet
+# https://developer.hashicorp.com/vault/tutorials/kubernetes/agent-kubernetes
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: vault
+  labels:
+    app: vault
+spec:
+  serviceName: vault
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vault
+  template:
+    metadata:
+      labels:
+        app: vault
+    spec:
+      containers:
+      - name: vault
+        image: vault:1.12.1
+        imagePullPolicy: IfNotPresent
+        # Couldn't start vault with IPC_LOCK. Disabling IPC_LOCK, please use --cap-add IPC_LOCK
+        securityContext:
+          capabilities:
+            add: ["IPC_LOCK"]
+        ports:
+        - name: vault
+          containerPort: 8200
+          protocol: TCP
+        # Resource Limits
+        resources:
+          requests:
+            memory: 256Mi
+            cpu: 250m
+          limits:
+            memory: 256Mi
+            cpu: 250m
+        # Data Volume
+        args:
+          - server
+          - -config=/etc/vault/config.hcl
+        volumeMounts:
+        - name: pvc
+          mountPath: /vault/data
+        - name: vault-config
+          mountPath: /etc/vault
+        # Environment variables
+        env:
+        - name: VAULT_ADDR
+          valueFrom:
+            configMapKeyRef:
+              name: vault-config
+              key: VAULT_ADDR
+      volumes:
+      - name: pvc
+        persistentVolumeClaim:
+          claimName: pvc-vault
+      - name: vault-config
+        configMap:
+          name: vault-config
+          items:
+          - key: config.hcl
+            path: config.hcl
+---
+# vault service
+apiVersion: v1
+kind: Service
+metadata:
+  name: vault
+  labels:
+    app: vault
+spec:
+  selector:
+    app: vault
+  type: ClusterIP
+  ports:
+  - name: vault
+    protocol: TCP
+    port: 8200
+    targetPort: 8200
