@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    role: module02
+  name: module02
+spec:
+  containers:
+  - image: praqma/network-multitool:alpine-extra
+    imagePullPolicy: IfNotPresent
+    name: module02
+    env:
+    - name: HTTP_PORT
+      value: "1280"
+  terminationGracePeriodSeconds: 30
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: module02
+spec:
+  ports:
+  - name: web
+    protocol: TCP
+    port: 1280
+  selector:
+    role: module02
+  type: ClusterIP
