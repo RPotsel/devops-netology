@@ -1,0 +1,38 @@
+# https://cloud.yandex.ru/docs/managed-kubernetes/tutorials/alb-ingress-controller
+# https://github.com/kubernetes-sigs/aws-load-balancer-controller/blob/main/docs/guide/ingress/annotations.md
+# https://cloud.yandex.ru/docs/application-load-balancer/k8s-ref/ingress
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: alb-demo-v1
+  annotations:
+    ingress.alb.yc.io/subnets: e9buq4hau14khd0isove,e9b5ksllierpaodjcaa3,e9bv4orgf09sup0c949a
+    # ingress.alb.yc.io/security-groups: <список идентификаторов групп безопасности>
+    ingress.alb.yc.io/external-ipv4-address: auto
+    ingress.alb.yc.io/group-name: testingress
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /app1
+            pathType: Prefix
+            backend:
+              service:
+                name: alb-demo-1
+                port:
+                  number: 80
+          - path: /app2
+            pathType: Prefix
+            backend:
+              service:
+                name: alb-demo-2
+                port:
+                  number: 80
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: alb-demo-2
+                port:
+                  name: http

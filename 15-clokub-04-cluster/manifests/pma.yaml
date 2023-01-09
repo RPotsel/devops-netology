@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  labels:
+    app: 15-04-frontend
+spec:
+  selector:
+    matchLabels:
+      app: 15-04-frontend
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: 15-04-frontend
+    spec:
+      containers:
+      - image: phpmyadmin
+        name: phpmyadmin
+        ports:
+        - containerPort: 80
+        env:
+        - name: PMA_USER
+          value: "netology"
+        - name: PMA_PASSWORD
+          value: "password"
+        - name: PMA_HOST
+          value: "rc1a-aqyfveso3akpvanr.mdb.yandexcloud.net"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-lb
+spec:
+  selector:
+    app: 15-04-frontend
+  type: LoadBalancer
+  ports:
+  - name: frontend
+    protocol: TCP
+    port: 80
+    targetPort: 80
