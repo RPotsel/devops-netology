@@ -69,10 +69,12 @@ override.tf.json
 # example: *tfplan*
 
 # Ignore CLI configuration files
-.terraformrc
+# .terraformrc
 terraform.rc
 .terraform.lock*
-key.json
 
 # Visual Studio Code
 .dockerignore
+
+# Ignore credentials
+key.json

@@ -1,0 +1,7 @@
+---
+atlantis_server_user: atlantis
+atlantis_server_group: atlantis
+atlantis_data_dir: "/home/atlantis"
+atlantis_binary_url: "https://github.com/runatlantis/atlantis/releases/\
+  download/{{ atlantis_version }}/atlantis_linux_amd64.zip"
+

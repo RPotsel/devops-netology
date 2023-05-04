@@ -1,0 +1,980 @@
+$ make WORKSPACE=dev tf-apply 
+cd ./demo-app && terraform apply tfplan
+module.vpc.yandex_vpc_subnet.this["0"]: Creating...
+module.vpc.yandex_vpc_security_group.this["0"]: Creating...
+module.vpc.yandex_vpc_subnet.this["0"]: Creation complete after 2s [id=e9b4n7ujmb40go1hccf0]
+module.vpc.yandex_vpc_security_group.this["0"]: Creation complete after 4s [id=enphnhjpur2lh9q8llqi]
+module.instances["0"].data.yandex_dns_zone.this[0]: Reading...
+module.instances["0"].data.yandex_compute_image.this: Reading...
+module.instances["0"].data.template_file.this: Reading...
+module.instances["0"].data.yandex_vpc_subnet.this: Reading...
+module.instances["0"].data.template_file.this: Read complete after 0s [id=c843d2cce905a7a6fe992e052e8963b03cbacee36ed83a554e18506b061bc8a4]
+module.instances["0"].data.yandex_dns_zone.this[0]: Read complete after 0s [id=dnsbn0rnbq0huajlta3l]
+module.instances["0"].data.yandex_compute_image.this: Read complete after 0s [id=fd8gfg42q4551cvt340b]
+module.instances["0"].data.yandex_vpc_subnet.this: Read complete after 1s [id=e9b4n7ujmb40go1hccf0]
+module.instances["0"].yandex_compute_instance.this["dev"]: Creating...
+module.instances["0"].yandex_compute_instance.this["dev"]: Still creating... [10s elapsed]
+module.instances["0"].yandex_compute_instance.this["dev"]: Still creating... [20s elapsed]
+module.instances["0"].yandex_compute_instance.this["dev"]: Still creating... [30s elapsed]
+module.instances["0"].yandex_compute_instance.this["dev"]: Still creating... [40s elapsed]
+module.instances["0"].yandex_compute_instance.this["dev"]: Creation complete after 41s [id=fhmbumfln1lfj3mngtg0]
+module.instances["0"].yandex_dns_recordset.this["dev"]: Creating...
+module.instances["0"].yandex_dns_recordset.this["dev"]: Creation complete after 0s [id=dnsbn0rnbq0huajlta3l/dev.pinbit.ru./A]
+
+Apply complete! Resources: 4 added, 0 changed, 0 destroyed.
+rpot@rp-nb-h02:~/projects/demo-tf$ make WORKSPACE=stage tf-plan
+terraform -chdir=demo-app init -input=false --reconfigure
+Initializing modules...
+
+Initializing the backend...
+
+Successfully configured the backend "s3"! Terraform will automatically
+use this backend unless the backend configuration changes.
+
+Initializing provider plugins...
+- Reusing previous version of yandex-cloud/yandex from the dependency lock file
+- Reusing previous version of hashicorp/template from the dependency lock file
+- Using previously-installed yandex-cloud/yandex v0.89.0
+- Using previously-installed hashicorp/template v2.2.0
+
+Terraform has been successfully initialized!
+
+You may now begin working with Terraform. Try running "terraform plan" to see
+any changes that are required for your infrastructure. All Terraform commands
+should now work.
+
+If you ever set or change modules or backend configuration for Terraform,
+rerun this command to reinitialize your working directory. If you forget, other
+commands will detect it and remind you to do so if necessary.
+terraform -chdir=demo-app workspace select stage || \
+	terraform -chdir=demo-app workspace new stage
+
+Workspace "stage" doesn't exist.
+
+You can create this workspace with the "new" subcommand.
+Created and switched to workspace "stage"!
+
+You're now on a new, empty workspace. Workspaces isolate their state,
+so if you run "terraform plan" Terraform will not see any existing state
+for this configuration.
+terraform -chdir=demo-app plan -input=false -refresh -out=tfplan -var-file stage.tfvars
+module.vpc.data.yandex_vpc_network.this: Reading...
+module.vpc.data.yandex_vpc_route_table.this[0]: Reading...
+module.vpc.data.yandex_vpc_network.this: Read complete after 1s [id=enp77dav1u3pidr80e1s]
+module.vpc.data.yandex_vpc_route_table.this[0]: Read complete after 1s [id=enpef49uh9e9kh8u5n3d]
+
+Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
+  + create
+ <= read (data resources)
+
+Terraform will perform the following actions:
+
+  # module.instances["0"].data.template_file.this will be read during apply
+  # (depends on a resource or a module with changes pending)
+ <= data "template_file" "this" {
+      + id       = (known after apply)
+      + rendered = (known after apply)
+      + template = <<-EOT
+            #cloud-config
+            users:
+              - name: ${username}
+                groups: ${user_groups}
+                shell: /bin/bash
+                sudo: ['ALL=(ALL) NOPASSWD:ALL']
+                lock_passwd: false
+                passwd: ${password}
+                ssh_authorized_keys:
+                  - ${ssh_key}
+            runcmd:
+              - touch /var/lib/cloud/instance/warnings/.skip
+        EOT
+      + vars     = {
+          + "password"    = ""
+          + "ssh_key"     = <<-EOT
+                ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDQ3ItRqTL0EjRpDHhq1bUUjlp+cgIo+NL5r50vpM4XclKEVXBjMMZleTnLhKq2FwKuCtG6u/QPEvg5tsYBIhbC5yu1mWeJUi0LacHG6em+/kHrG+bmZLENxg7MTLDOis1yWkYcbrpJ7jEZ+GlDAGSEFHDoHubgLTrEWfdPrEQTxNCkq6CeO43Yj92EOkcWoiNw7Vl7NIy7CWaK/hqHDvEOpJM+3lRZ1aHxeHVrQ3zUBq89VpogPEOq6AUpCqFb6awwEnB4zFz19K36TIKkf0jc3Icf3gAZIX9zjzQUpSVkJ5Opv8WxYfqh1AgZ5Xcbvc1fW5Zpnt0piL48dxXAVvshLz1nMdvTFgwr2jT26wDarnqhVUBxmN2tslJ7dxkn3y0VCd3s8PzyRH8bxf0Qio1ViC6PkyHVD+q1Je0AxLj7no8HWKzNnvjVuz3r03awOzZrGdqPFsPgGddzfnDrVRDqlS8V69L4FvKCR9v7BUM2vnVzYbJfxFAuSemOkBbyYd+bRZ6mnsufnjx8RhEZ682BpIh+qfUCDiTeh5M/+BrudZiv74orq9eboloKWYMsg+atYHjBJKaGsEu+iipuY9K7hEd/65DQLc+gtCTYEY/x2I6EbqWA3zexuFVS0XOK4QdI8iGhDw3ERh/Vc+E9Nnk3vpv/05T8huZWsWDGKdZKaQ== rpotsel@gmail.com
+            EOT
+          + "user_groups" = "sudo"
+          + "username"    = "ubuntu"
+        }
+    }
+
+  # module.instances["0"].data.yandex_compute_image.this will be read during apply
+  # (depends on a resource or a module with changes pending)
+ <= data "yandex_compute_image" "this" {
+      + created_at    = (known after apply)
+      + description   = (known after apply)
+      + family        = "ubuntu-2004-lts"
+      + folder_id     = (known after apply)
+      + id            = (known after apply)
+      + image_id      = (known after apply)
+      + labels        = (known after apply)
+      + min_disk_size = (known after apply)
+      + name          = (known after apply)
+      + os_type       = (known after apply)
+      + pooled        = (known after apply)
+      + product_ids   = (known after apply)
+      + size          = (known after apply)
+      + status        = (known after apply)
+    }
+
+  # module.instances["0"].data.yandex_dns_zone.this[0] will be read during apply
+  # (depends on a resource or a module with changes pending)
+ <= data "yandex_dns_zone" "this" {
+      + created_at       = (known after apply)
+      + description      = (known after apply)
+      + dns_zone_id      = (known after apply)
+      + folder_id        = (known after apply)
+      + id               = (known after apply)
+      + labels           = (known after apply)
+      + name             = "demo-zone"
+      + private_networks = (known after apply)
+      + public           = (known after apply)
+      + zone             = (known after apply)
+
+      + timeouts {
+          + create = (known after apply)
+          + delete = (known after apply)
+          + update = (known after apply)
+        }
+    }
+
+  # module.instances["0"].data.yandex_vpc_subnet.this will be read during apply
+  # (depends on a resource or a module with changes pending)
+ <= data "yandex_vpc_subnet" "this" {
+      + created_at     = (known after apply)
+      + description    = (known after apply)
+      + dhcp_options   = (known after apply)
+      + folder_id      = (known after apply)
+      + id             = (known after apply)
+      + labels         = (known after apply)
+      + name           = "stage-a"
+      + network_id     = (known after apply)
+      + route_table_id = (known after apply)
+      + subnet_id      = (known after apply)
+      + v4_cidr_blocks = (known after apply)
+      + v6_cidr_blocks = (known after apply)
+      + zone           = (known after apply)
+    }
+
+  # module.instances["0"].yandex_compute_instance.this["control-stage-01"] will be created
+  + resource "yandex_compute_instance" "this" {
+      + allow_stopping_for_update = true
+      + created_at                = (known after apply)
+      + folder_id                 = (known after apply)
+      + fqdn                      = (known after apply)
+      + gpu_cluster_id            = (known after apply)
+      + hostname                  = "control-stage-01"
+      + id                        = (known after apply)
+      + labels                    = {
+          + "env"           = "stage"
+          + "group_stage_1" = "kube_control_plane"
+          + "group_stage_2" = "etcd"
+          + "group_stage_3" = "k8s_cluster"
+        }
+      + metadata                  = (known after apply)
+      + name                      = "control-stage-01"
+      + network_acceleration_type = "standard"
+      + platform_id               = "standard-v1"
+      + service_account_id        = (known after apply)
+      + status                    = (known after apply)
+      + zone                      = "ru-central1-a"
+
+      + boot_disk {
+          + auto_delete = true
+          + device_name = (known after apply)
+          + disk_id     = (known after apply)
+          + mode        = (known after apply)
+
+          + initialize_params {
+              + block_size  = (known after apply)
+              + description = (known after apply)
+              + image_id    = (known after apply)
+              + name        = (known after apply)
+              + size        = 20
+              + snapshot_id = (known after apply)
+              + type        = "network-hdd"
+            }
+        }
+
+      + metadata_options {
+          + aws_v1_http_endpoint = (known after apply)
+          + aws_v1_http_token    = (known after apply)
+          + gce_http_endpoint    = (known after apply)
+          + gce_http_token       = (known after apply)
+        }
+
+      + network_interface {
+          + index              = (known after apply)
+          + ip_address         = (known after apply)
+          + ipv4               = true
+          + ipv6               = (known after apply)
+          + ipv6_address       = (known after apply)
+          + mac_address        = (known after apply)
+          + nat                = (known after apply)
+          + nat_ip_address     = (known after apply)
+          + nat_ip_version     = (known after apply)
+          + security_group_ids = (known after apply)
+          + subnet_id          = (known after apply)
+        }
+
+      + placement_policy {
+          + host_affinity_rules = (known after apply)
+          + placement_group_id  = (known after apply)
+        }
+
+      + resources {
+          + core_fraction = 100
+          + cores         = 2
+          + memory        = 2
+        }
+
+      + scheduling_policy {
+          + preemptible = (known after apply)
+        }
+    }
+
+  # module.instances["1"].data.template_file.this will be read during apply
+  # (depends on a resource or a module with changes pending)
+ <= data "template_file" "this" {
+      + id       = (known after apply)
+      + rendered = (known after apply)
+      + template = <<-EOT
+            #cloud-config
+            users:
+              - name: ${username}
+                groups: ${user_groups}
+                shell: /bin/bash
+                sudo: ['ALL=(ALL) NOPASSWD:ALL']
+                lock_passwd: false
+                passwd: ${password}
+                ssh_authorized_keys:
+                  - ${ssh_key}
+            runcmd:
+              - touch /var/lib/cloud/instance/warnings/.skip
+        EOT
+      + vars     = {
+          + "password"    = ""
+          + "ssh_key"     = <<-EOT
+                ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDQ3ItRqTL0EjRpDHhq1bUUjlp+cgIo+NL5r50vpM4XclKEVXBjMMZleTnLhKq2FwKuCtG6u/QPEvg5tsYBIhbC5yu1mWeJUi0LacHG6em+/kHrG+bmZLENxg7MTLDOis1yWkYcbrpJ7jEZ+GlDAGSEFHDoHubgLTrEWfdPrEQTxNCkq6CeO43Yj92EOkcWoiNw7Vl7NIy7CWaK/hqHDvEOpJM+3lRZ1aHxeHVrQ3zUBq89VpogPEOq6AUpCqFb6awwEnB4zFz19K36TIKkf0jc3Icf3gAZIX9zjzQUpSVkJ5Opv8WxYfqh1AgZ5Xcbvc1fW5Zpnt0piL48dxXAVvshLz1nMdvTFgwr2jT26wDarnqhVUBxmN2tslJ7dxkn3y0VCd3s8PzyRH8bxf0Qio1ViC6PkyHVD+q1Je0AxLj7no8HWKzNnvjVuz3r03awOzZrGdqPFsPgGddzfnDrVRDqlS8V69L4FvKCR9v7BUM2vnVzYbJfxFAuSemOkBbyYd+bRZ6mnsufnjx8RhEZ682BpIh+qfUCDiTeh5M/+BrudZiv74orq9eboloKWYMsg+atYHjBJKaGsEu+iipuY9K7hEd/65DQLc+gtCTYEY/x2I6EbqWA3zexuFVS0XOK4QdI8iGhDw3ERh/Vc+E9Nnk3vpv/05T8huZWsWDGKdZKaQ== rpotsel@gmail.com
+            EOT
+          + "user_groups" = "sudo"
+          + "username"    = "ubuntu"
+        }
+    }
+
+  # module.instances["1"].data.yandex_compute_image.this will be read during apply
+  # (depends on a resource or a module with changes pending)
+ <= data "yandex_compute_image" "this" {
+      + created_at    = (known after apply)
+      + description   = (known after apply)
+      + family        = "ubuntu-2004-lts"
+      + folder_id     = (known after apply)
+      + id            = (known after apply)
+      + image_id      = (known after apply)
+      + labels        = (known after apply)
+      + min_disk_size = (known after apply)
+      + name          = (known after apply)
+      + os_type       = (known after apply)
+      + pooled        = (known after apply)
+      + product_ids   = (known after apply)
+      + size          = (known after apply)
+      + status        = (known after apply)
+    }
+
+  # module.instances["1"].data.yandex_dns_zone.this[0] will be read during apply
+  # (depends on a resource or a module with changes pending)
+ <= data "yandex_dns_zone" "this" {
+      + created_at       = (known after apply)
+      + description      = (known after apply)
+      + dns_zone_id      = (known after apply)
+      + folder_id        = (known after apply)
+      + id               = (known after apply)
+      + labels           = (known after apply)
+      + name             = "demo-zone"
+      + private_networks = (known after apply)
+      + public           = (known after apply)
+      + zone             = (known after apply)
+
+      + timeouts {
+          + create = (known after apply)
+          + delete = (known after apply)
+          + update = (known after apply)
+        }
+    }
+
+  # module.instances["1"].data.yandex_vpc_subnet.this will be read during apply
+  # (depends on a resource or a module with changes pending)
+ <= data "yandex_vpc_subnet" "this" {
+      + created_at     = (known after apply)
+      + description    = (known after apply)
+      + dhcp_options   = (known after apply)
+      + folder_id      = (known after apply)
+      + id             = (known after apply)
+      + labels         = (known after apply)
+      + name           = "stage-a"
+      + network_id     = (known after apply)
+      + route_table_id = (known after apply)
+      + subnet_id      = (known after apply)
+      + v4_cidr_blocks = (known after apply)
+      + v6_cidr_blocks = (known after apply)
+      + zone           = (known after apply)
+    }
+
+  # module.instances["1"].yandex_compute_instance.this["ingress-stage-01"] will be created
+  + resource "yandex_compute_instance" "this" {
+      + allow_stopping_for_update = true
+      + created_at                = (known after apply)
+      + folder_id                 = (known after apply)
+      + fqdn                      = (known after apply)
+      + gpu_cluster_id            = (known after apply)
+      + hostname                  = "ingress-stage-01"
+      + id                        = (known after apply)
+      + labels                    = {
+          + "env"           = "stage"
+          + "group_stage_1" = "kube_ingress"
+          + "group_stage_2" = "kube_node"
+          + "group_stage_3" = "k8s_cluster"
+        }
+      + metadata                  = (known after apply)
+      + name                      = "ingress-stage-01"
+      + network_acceleration_type = "standard"
+      + platform_id               = "standard-v1"
+      + service_account_id        = (known after apply)
+      + status                    = (known after apply)
+      + zone                      = "ru-central1-a"
+
+      + boot_disk {
+          + auto_delete = true
+          + device_name = (known after apply)
+          + disk_id     = (known after apply)
+          + mode        = (known after apply)
+
+          + initialize_params {
+              + block_size  = (known after apply)
+              + description = (known after apply)
+              + image_id    = (known after apply)
+              + name        = (known after apply)
+              + size        = 20
+              + snapshot_id = (known after apply)
+              + type        = "network-hdd"
+            }
+        }
+
+      + metadata_options {
+          + aws_v1_http_endpoint = (known after apply)
+          + aws_v1_http_token    = (known after apply)
+          + gce_http_endpoint    = (known after apply)
+          + gce_http_token       = (known after apply)
+        }
+
+      + network_interface {
+          + index              = (known after apply)
+          + ip_address         = (known after apply)
+          + ipv4               = true
+          + ipv6               = (known after apply)
+          + ipv6_address       = (known after apply)
+          + mac_address        = (known after apply)
+          + nat                = (known after apply)
+          + nat_ip_address     = (known after apply)
+          + nat_ip_version     = (known after apply)
+          + security_group_ids = (known after apply)
+          + subnet_id          = (known after apply)
+        }
+
+      + placement_policy {
+          + host_affinity_rules = (known after apply)
+          + placement_group_id  = (known after apply)
+        }
+
+      + resources {
+          + core_fraction = 20
+          + cores         = 2
+          + memory        = 2
+        }
+
+      + scheduling_policy {
+          + preemptible = (known after apply)
+        }
+    }
+
+  # module.instances["2"].data.template_file.this will be read during apply
+  # (depends on a resource or a module with changes pending)
+ <= data "template_file" "this" {
+      + id       = (known after apply)
+      + rendered = (known after apply)
+      + template = <<-EOT
+            #cloud-config
+            users:
+              - name: ${username}
+                groups: ${user_groups}
+                shell: /bin/bash
+                sudo: ['ALL=(ALL) NOPASSWD:ALL']
+                lock_passwd: false
+                passwd: ${password}
+                ssh_authorized_keys:
+                  - ${ssh_key}
+            runcmd:
+              - touch /var/lib/cloud/instance/warnings/.skip
+        EOT
+      + vars     = {
+          + "password"    = ""
+          + "ssh_key"     = <<-EOT
+                ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDQ3ItRqTL0EjRpDHhq1bUUjlp+cgIo+NL5r50vpM4XclKEVXBjMMZleTnLhKq2FwKuCtG6u/QPEvg5tsYBIhbC5yu1mWeJUi0LacHG6em+/kHrG+bmZLENxg7MTLDOis1yWkYcbrpJ7jEZ+GlDAGSEFHDoHubgLTrEWfdPrEQTxNCkq6CeO43Yj92EOkcWoiNw7Vl7NIy7CWaK/hqHDvEOpJM+3lRZ1aHxeHVrQ3zUBq89VpogPEOq6AUpCqFb6awwEnB4zFz19K36TIKkf0jc3Icf3gAZIX9zjzQUpSVkJ5Opv8WxYfqh1AgZ5Xcbvc1fW5Zpnt0piL48dxXAVvshLz1nMdvTFgwr2jT26wDarnqhVUBxmN2tslJ7dxkn3y0VCd3s8PzyRH8bxf0Qio1ViC6PkyHVD+q1Je0AxLj7no8HWKzNnvjVuz3r03awOzZrGdqPFsPgGddzfnDrVRDqlS8V69L4FvKCR9v7BUM2vnVzYbJfxFAuSemOkBbyYd+bRZ6mnsufnjx8RhEZ682BpIh+qfUCDiTeh5M/+BrudZiv74orq9eboloKWYMsg+atYHjBJKaGsEu+iipuY9K7hEd/65DQLc+gtCTYEY/x2I6EbqWA3zexuFVS0XOK4QdI8iGhDw3ERh/Vc+E9Nnk3vpv/05T8huZWsWDGKdZKaQ== rpotsel@gmail.com
+            EOT
+          + "user_groups" = "sudo"
+          + "username"    = "ubuntu"
+        }
+    }
+
+  # module.instances["2"].data.yandex_compute_image.this will be read during apply
+  # (depends on a resource or a module with changes pending)
+ <= data "yandex_compute_image" "this" {
+      + created_at    = (known after apply)
+      + description   = (known after apply)
+      + family        = "ubuntu-2004-lts"
+      + folder_id     = (known after apply)
+      + id            = (known after apply)
+      + image_id      = (known after apply)
+      + labels        = (known after apply)
+      + min_disk_size = (known after apply)
+      + name          = (known after apply)
+      + os_type       = (known after apply)
+      + pooled        = (known after apply)
+      + product_ids   = (known after apply)
+      + size          = (known after apply)
+      + status        = (known after apply)
+    }
+
+  # module.instances["2"].data.yandex_dns_zone.this[0] will be read during apply
+  # (depends on a resource or a module with changes pending)
+ <= data "yandex_dns_zone" "this" {
+      + created_at       = (known after apply)
+      + description      = (known after apply)
+      + dns_zone_id      = (known after apply)
+      + folder_id        = (known after apply)
+      + id               = (known after apply)
+      + labels           = (known after apply)
+      + name             = "demo-zone"
+      + private_networks = (known after apply)
+      + public           = (known after apply)
+      + zone             = (known after apply)
+
+      + timeouts {
+          + create = (known after apply)
+          + delete = (known after apply)
+          + update = (known after apply)
+        }
+    }
+
+  # module.instances["2"].data.yandex_vpc_subnet.this will be read during apply
+  # (depends on a resource or a module with changes pending)
+ <= data "yandex_vpc_subnet" "this" {
+      + created_at     = (known after apply)
+      + description    = (known after apply)
+      + dhcp_options   = (known after apply)
+      + folder_id      = (known after apply)
+      + id             = (known after apply)
+      + labels         = (known after apply)
+      + name           = "stage-a"
+      + network_id     = (known after apply)
+      + route_table_id = (known after apply)
+      + subnet_id      = (known after apply)
+      + v4_cidr_blocks = (known after apply)
+      + v6_cidr_blocks = (known after apply)
+      + zone           = (known after apply)
+    }
+
+  # module.instances["2"].yandex_compute_instance.this["worker-stage-01"] will be created
+  + resource "yandex_compute_instance" "this" {
+      + allow_stopping_for_update = true
+      + created_at                = (known after apply)
+      + folder_id                 = (known after apply)
+      + fqdn                      = (known after apply)
+      + gpu_cluster_id            = (known after apply)
+      + hostname                  = "worker-stage-01"
+      + id                        = (known after apply)
+      + labels                    = {
+          + "env"           = "stage"
+          + "group_stage_1" = "kube_node"
+          + "group_stage_2" = "k8s_cluster"
+        }
+      + metadata                  = (known after apply)
+      + name                      = "worker-stage-01"
+      + network_acceleration_type = "standard"
+      + platform_id               = "standard-v1"
+      + service_account_id        = (known after apply)
+      + status                    = (known after apply)
+      + zone                      = "ru-central1-a"
+
+      + boot_disk {
+          + auto_delete = true
+          + device_name = (known after apply)
+          + disk_id     = (known after apply)
+          + mode        = (known after apply)
+
+          + initialize_params {
+              + block_size  = (known after apply)
+              + description = (known after apply)
+              + image_id    = (known after apply)
+              + name        = (known after apply)
+              + size        = 20
+              + snapshot_id = (known after apply)
+              + type        = "network-hdd"
+            }
+        }
+
+      + metadata_options {
+          + aws_v1_http_endpoint = (known after apply)
+          + aws_v1_http_token    = (known after apply)
+          + gce_http_endpoint    = (known after apply)
+          + gce_http_token       = (known after apply)
+        }
+
+      + network_interface {
+          + index              = (known after apply)
+          + ip_address         = (known after apply)
+          + ipv4               = true
+          + ipv6               = (known after apply)
+          + ipv6_address       = (known after apply)
+          + mac_address        = (known after apply)
+          + nat                = (known after apply)
+          + nat_ip_address     = (known after apply)
+          + nat_ip_version     = (known after apply)
+          + security_group_ids = (known after apply)
+          + subnet_id          = (known after apply)
+        }
+
+      + placement_policy {
+          + host_affinity_rules = (known after apply)
+          + placement_group_id  = (known after apply)
+        }
+
+      + resources {
+          + core_fraction = 20
+          + cores         = 2
+          + memory        = 4
+        }
+
+      + scheduling_policy {
+          + preemptible = (known after apply)
+        }
+    }
+
+  # module.instances["2"].yandex_compute_instance.this["worker-stage-02"] will be created
+  + resource "yandex_compute_instance" "this" {
+      + allow_stopping_for_update = true
+      + created_at                = (known after apply)
+      + folder_id                 = (known after apply)
+      + fqdn                      = (known after apply)
+      + gpu_cluster_id            = (known after apply)
+      + hostname                  = "worker-stage-02"
+      + id                        = (known after apply)
+      + labels                    = {
+          + "env"           = "stage"
+          + "group_stage_1" = "kube_node"
+          + "group_stage_2" = "k8s_cluster"
+        }
+      + metadata                  = (known after apply)
+      + name                      = "worker-stage-02"
+      + network_acceleration_type = "standard"
+      + platform_id               = "standard-v1"
+      + service_account_id        = (known after apply)
+      + status                    = (known after apply)
+      + zone                      = "ru-central1-a"
+
+      + boot_disk {
+          + auto_delete = true
+          + device_name = (known after apply)
+          + disk_id     = (known after apply)
+          + mode        = (known after apply)
+
+          + initialize_params {
+              + block_size  = (known after apply)
+              + description = (known after apply)
+              + image_id    = (known after apply)
+              + name        = (known after apply)
+              + size        = 20
+              + snapshot_id = (known after apply)
+              + type        = "network-hdd"
+            }
+        }
+
+      + metadata_options {
+          + aws_v1_http_endpoint = (known after apply)
+          + aws_v1_http_token    = (known after apply)
+          + gce_http_endpoint    = (known after apply)
+          + gce_http_token       = (known after apply)
+        }
+
+      + network_interface {
+          + index              = (known after apply)
+          + ip_address         = (known after apply)
+          + ipv4               = true
+          + ipv6               = (known after apply)
+          + ipv6_address       = (known after apply)
+          + mac_address        = (known after apply)
+          + nat                = (known after apply)
+          + nat_ip_address     = (known after apply)
+          + nat_ip_version     = (known after apply)
+          + security_group_ids = (known after apply)
+          + subnet_id          = (known after apply)
+        }
+
+      + placement_policy {
+          + host_affinity_rules = (known after apply)
+          + placement_group_id  = (known after apply)
+        }
+
+      + resources {
+          + core_fraction = 20
+          + cores         = 2
+          + memory        = 4
+        }
+
+      + scheduling_policy {
+          + preemptible = (known after apply)
+        }
+    }
+
+  # module.lb["0"].data.yandex_compute_instance.this[0] will be read during apply
+  # (depends on a resource or a module with changes pending)
+ <= data "yandex_compute_instance" "this" {
+      + boot_disk                 = (known after apply)
+      + created_at                = (known after apply)
+      + description               = (known after apply)
+      + folder_id                 = (known after apply)
+      + fqdn                      = (known after apply)
+      + gpu_cluster_id            = (known after apply)
+      + id                        = (known after apply)
+      + instance_id               = (known after apply)
+      + labels                    = (known after apply)
+      + metadata                  = (known after apply)
+      + name                      = "ingress-stage-01"
+      + network_acceleration_type = (known after apply)
+      + network_interface         = (known after apply)
+      + platform_id               = (known after apply)
+      + resources                 = (known after apply)
+      + scheduling_policy         = (known after apply)
+      + secondary_disk            = (known after apply)
+      + service_account_id        = (known after apply)
+      + status                    = (known after apply)
+      + zone                      = (known after apply)
+    }
+
+  # module.lb["0"].data.yandex_dns_zone.this[0] will be read during apply
+  # (depends on a resource or a module with changes pending)
+ <= data "yandex_dns_zone" "this" {
+      + created_at       = (known after apply)
+      + description      = (known after apply)
+      + dns_zone_id      = (known after apply)
+      + folder_id        = (known after apply)
+      + id               = (known after apply)
+      + labels           = (known after apply)
+      + name             = "demo-zone"
+      + private_networks = (known after apply)
+      + public           = (known after apply)
+      + zone             = (known after apply)
+
+      + timeouts {
+          + create = (known after apply)
+          + delete = (known after apply)
+          + update = (known after apply)
+        }
+    }
+
+  # module.lb["0"].yandex_dns_recordset.this[0] will be created
+  + resource "yandex_dns_recordset" "this" {
+      + data    = (known after apply)
+      + id      = (known after apply)
+      + name    = (known after apply)
+      + ttl     = 200
+      + type    = "A"
+      + zone_id = (known after apply)
+    }
+
+  # module.lb["0"].yandex_lb_network_load_balancer.this will be created
+  + resource "yandex_lb_network_load_balancer" "this" {
+      + created_at          = (known after apply)
+      + deletion_protection = (known after apply)
+      + folder_id           = (known after apply)
+      + id                  = (known after apply)
+      + name                = "k8s-stage"
+      + region_id           = (known after apply)
+      + type                = "external"
+
+      + attached_target_group {
+          + target_group_id = (known after apply)
+
+          + healthcheck {
+              + healthy_threshold   = 2
+              + interval            = 2
+              + name                = "http"
+              + timeout             = 1
+              + unhealthy_threshold = 2
+
+              + http_options {
+                  + path = "/healthz"
+                  + port = 80
+                }
+            }
+        }
+
+      + listener {
+          + name        = "k8s-stage-listener"
+          + port        = 80
+          + protocol    = (known after apply)
+          + target_port = (known after apply)
+
+          + external_address_spec {
+              + address    = (known after apply)
+              + ip_version = "ipv4"
+            }
+        }
+    }
+
+  # module.lb["0"].yandex_lb_target_group.this will be created
+  + resource "yandex_lb_target_group" "this" {
+      + created_at = (known after apply)
+      + folder_id  = (known after apply)
+      + id         = (known after apply)
+      + name       = "k8s-stage-lb-tg"
+      + region_id  = (known after apply)
+
+      + target {
+          + address   = (known after apply)
+          + subnet_id = (known after apply)
+        }
+    }
+
+  # module.vpc.yandex_vpc_security_group.this["0"] will be created
+  + resource "yandex_vpc_security_group" "this" {
+      + created_at  = (known after apply)
+      + description = "Security group for the Managed Service for Kubernetes cluster and nodes"
+      + folder_id   = (known after apply)
+      + id          = (known after apply)
+      + labels      = (known after apply)
+      + name        = "k8s-main-sg"
+      + network_id  = "enp77dav1u3pidr80e1s"
+      + status      = (known after apply)
+
+      + egress {
+          + description    = "The rule allows all outgoing traffic"
+          + from_port      = 0
+          + id             = (known after apply)
+          + labels         = (known after apply)
+          + port           = -1
+          + protocol       = "ANY"
+          + to_port        = 65535
+          + v4_cidr_blocks = [
+              + "0.0.0.0/0",
+            ]
+          + v6_cidr_blocks = []
+        }
+
+      + ingress {
+          + description    = "SSH"
+          + from_port      = -1
+          + id             = (known after apply)
+          + labels         = (known after apply)
+          + port           = 22
+          + protocol       = "TCP"
+          + to_port        = -1
+          + v4_cidr_blocks = [
+              + "0.0.0.0/0",
+            ]
+          + v6_cidr_blocks = []
+        }
+      + ingress {
+          + description       = "The rule allows availability traffic from the load balancer's range of addresses"
+          + from_port         = 0
+          + id                = (known after apply)
+          + labels            = (known after apply)
+          + port              = -1
+          + predefined_target = "loadbalancer_healthchecks"
+          + protocol          = "TCP"
+          + to_port           = 65535
+          + v4_cidr_blocks    = []
+          + v6_cidr_blocks    = []
+        }
+      + ingress {
+          + description    = "The rule allows connection on 80 port from the Internet"
+          + from_port      = -1
+          + id             = (known after apply)
+          + labels         = (known after apply)
+          + port           = 80
+          + protocol       = "TCP"
+          + to_port        = -1
+          + v4_cidr_blocks = [
+              + "0.0.0.0/0",
+            ]
+          + v6_cidr_blocks = []
+        }
+      + ingress {
+          + description    = "The rule allows connection to Kubernetes API on 443 port from the Internet"
+          + from_port      = -1
+          + id             = (known after apply)
+          + labels         = (known after apply)
+          + port           = 443
+          + protocol       = "TCP"
+          + to_port        = -1
+          + v4_cidr_blocks = [
+              + "0.0.0.0/0",
+            ]
+          + v6_cidr_blocks = []
+        }
+      + ingress {
+          + description    = "The rule allows connection to Kubernetes API on 6443 port from the Internet"
+          + from_port      = -1
+          + id             = (known after apply)
+          + labels         = (known after apply)
+          + port           = 6443
+          + protocol       = "TCP"
+          + to_port        = -1
+          + v4_cidr_blocks = [
+              + "0.0.0.0/0",
+            ]
+          + v6_cidr_blocks = []
+        }
+      + ingress {
+          + description    = "The rule allows connection to secify NodePort"
+          + from_port      = 30000
+          + id             = (known after apply)
+          + labels         = (known after apply)
+          + port           = -1
+          + protocol       = "TCP"
+          + to_port        = 32767
+          + v4_cidr_blocks = [
+              + "0.0.0.0/0",
+            ]
+          + v6_cidr_blocks = []
+        }
+      + ingress {
+          + description    = "The rule allows receipt of debugging ICMP packets from internal subnets"
+          + from_port      = -1
+          + id             = (known after apply)
+          + labels         = (known after apply)
+          + port           = -1
+          + protocol       = "ICMP"
+          + to_port        = -1
+          + v4_cidr_blocks = [
+              + "10.0.0.0/8",
+              + "192.168.0.0/16",
+              + "172.16.0.0/12",
+            ]
+          + v6_cidr_blocks = []
+        }
+      + ingress {
+          + description       = "The rule allows the master-node and node-node interaction within the security group"
+          + from_port         = 0
+          + id                = (known after apply)
+          + labels            = (known after apply)
+          + port              = -1
+          + predefined_target = "self_security_group"
+          + protocol          = "ANY"
+          + to_port           = 65535
+          + v4_cidr_blocks    = []
+          + v6_cidr_blocks    = []
+        }
+      + ingress {
+          + description    = "The rule allows the pod-pod and service-service interaction"
+          + from_port      = 0
+          + id             = (known after apply)
+          + labels         = (known after apply)
+          + port           = -1
+          + protocol       = "ANY"
+          + to_port        = 65535
+          + v4_cidr_blocks = [
+              + "10.233.64.0/18",
+              + "10.233.0.0/18",
+            ]
+          + v6_cidr_blocks = []
+        }
+    }
+
+  # module.vpc.yandex_vpc_subnet.this["0"] will be created
+  + resource "yandex_vpc_subnet" "this" {
+      + created_at     = (known after apply)
+      + folder_id      = (known after apply)
+      + id             = (known after apply)
+      + labels         = {
+          + "env" = "stage"
+        }
+      + name           = "stage-a"
+      + network_id     = "enp77dav1u3pidr80e1s"
+      + route_table_id = "enpef49uh9e9kh8u5n3d"
+      + v4_cidr_blocks = [
+          + "192.168.1.0/24",
+        ]
+      + v6_cidr_blocks = (known after apply)
+      + zone           = "ru-central1-a"
+    }
+
+Plan: 9 to add, 0 to change, 0 to destroy.
+
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+Saved the plan to: tfplan
+
+To perform exactly these actions, run the following command to apply:
+    terraform apply "tfplan"
+
+$ make WORKSPACE=stage tf-apply 
+cd ./demo-app && terraform apply tfplan
+module.vpc.yandex_vpc_subnet.this["0"]: Creating...
+module.vpc.yandex_vpc_security_group.this["0"]: Creating...
+module.vpc.yandex_vpc_subnet.this["0"]: Creation complete after 1s [id=e9bkn1ek7mmaqpvr2lui]
+module.vpc.yandex_vpc_security_group.this["0"]: Creation complete after 2s [id=enpsffq1iishatvf3spv]
+module.instances["1"].data.yandex_dns_zone.this[0]: Reading...
+module.instances["2"].data.template_file.this: Reading...
+module.instances["2"].data.yandex_compute_image.this: Reading...
+module.instances["1"].data.yandex_compute_image.this: Reading...
+module.instances["0"].data.yandex_dns_zone.this[0]: Reading...
+module.instances["2"].data.template_file.this: Read complete after 0s [id=c843d2cce905a7a6fe992e052e8963b03cbacee36ed83a554e18506b061bc8a4]
+module.instances["1"].data.template_file.this: Reading...
+module.instances["0"].data.template_file.this: Reading...
+module.instances["2"].data.yandex_dns_zone.this[0]: Reading...
+module.instances["0"].data.yandex_compute_image.this: Reading...
+module.instances["1"].data.template_file.this: Read complete after 0s [id=c843d2cce905a7a6fe992e052e8963b03cbacee36ed83a554e18506b061bc8a4]
+module.instances["0"].data.template_file.this: Read complete after 0s [id=c843d2cce905a7a6fe992e052e8963b03cbacee36ed83a554e18506b061bc8a4]
+module.instances["2"].data.yandex_vpc_subnet.this: Reading...
+module.instances["0"].data.yandex_vpc_subnet.this: Reading...
+module.instances["1"].data.yandex_vpc_subnet.this: Reading...
+module.instances["2"].data.yandex_compute_image.this: Read complete after 0s [id=fd8gfg42q4551cvt340b]
+module.instances["0"].data.yandex_compute_image.this: Read complete after 0s [id=fd8gfg42q4551cvt340b]
+module.instances["2"].data.yandex_vpc_subnet.this: Read complete after 0s [id=e9bkn1ek7mmaqpvr2lui]
+module.instances["0"].data.yandex_vpc_subnet.this: Read complete after 0s [id=e9bkn1ek7mmaqpvr2lui]
+module.instances["1"].data.yandex_compute_image.this: Read complete after 1s [id=fd8gfg42q4551cvt340b]
+module.instances["2"].data.yandex_dns_zone.this[0]: Read complete after 1s [id=dnsbn0rnbq0huajlta3l]
+module.instances["2"].yandex_compute_instance.this["worker-stage-02"]: Creating...
+module.instances["2"].yandex_compute_instance.this["worker-stage-01"]: Creating...
+module.instances["0"].yandex_compute_instance.this["control-stage-01"]: Creating...
+module.instances["1"].data.yandex_vpc_subnet.this: Read complete after 1s [id=e9bkn1ek7mmaqpvr2lui]
+module.instances["1"].yandex_compute_instance.this["ingress-stage-01"]: Creating...
+module.instances["1"].data.yandex_dns_zone.this[0]: Read complete after 1s [id=dnsbn0rnbq0huajlta3l]
+module.instances["0"].data.yandex_dns_zone.this[0]: Read complete after 1s [id=dnsbn0rnbq0huajlta3l]
+module.instances["2"].yandex_compute_instance.this["worker-stage-02"]: Still creating... [10s elapsed]
+module.instances["2"].yandex_compute_instance.this["worker-stage-01"]: Still creating... [10s elapsed]
+module.instances["0"].yandex_compute_instance.this["control-stage-01"]: Still creating... [10s elapsed]
+module.instances["1"].yandex_compute_instance.this["ingress-stage-01"]: Still creating... [10s elapsed]
+module.instances["2"].yandex_compute_instance.this["worker-stage-02"]: Still creating... [20s elapsed]
+module.instances["0"].yandex_compute_instance.this["control-stage-01"]: Still creating... [20s elapsed]
+module.instances["2"].yandex_compute_instance.this["worker-stage-01"]: Still creating... [20s elapsed]
+module.instances["1"].yandex_compute_instance.this["ingress-stage-01"]: Still creating... [20s elapsed]
+module.instances["2"].yandex_compute_instance.this["worker-stage-01"]: Creation complete after 27s [id=fhmigejdi7q3r8kfe310]
+module.instances["2"].yandex_compute_instance.this["worker-stage-02"]: Creation complete after 27s [id=fhmk0fhfj7gsemub78hp]
+module.instances["0"].yandex_compute_instance.this["control-stage-01"]: Still creating... [30s elapsed]
+module.instances["1"].yandex_compute_instance.this["ingress-stage-01"]: Still creating... [30s elapsed]
+module.instances["1"].yandex_compute_instance.this["ingress-stage-01"]: Creation complete after 31s [id=fhmtnc2rduoija611cno]
+module.instances["0"].yandex_compute_instance.this["control-stage-01"]: Creation complete after 36s [id=fhmms7je8ccqhj416dq4]
+module.lb["0"].data.yandex_dns_zone.this[0]: Reading...
+module.lb["0"].data.yandex_compute_instance.this[0]: Reading...
+module.lb["0"].data.yandex_dns_zone.this[0]: Read complete after 0s [id=dnsbn0rnbq0huajlta3l]
+module.lb["0"].data.yandex_compute_instance.this[0]: Read complete after 1s [id=fhmtnc2rduoija611cno]
+module.lb["0"].yandex_lb_target_group.this: Creating...
+module.lb["0"].yandex_lb_target_group.this: Creation complete after 2s [id=enpbr5luk68irlp58l10]
+module.lb["0"].yandex_lb_network_load_balancer.this: Creating...
+module.lb["0"].yandex_lb_network_load_balancer.this: Creation complete after 3s [id=enplf7snbl9oor9sqr87]
+module.lb["0"].yandex_dns_recordset.this[0]: Creating...
+module.lb["0"].yandex_dns_recordset.this[0]: Creation complete after 0s [id=dnsbn0rnbq0huajlta3l/k8s-stage.pinbit.ru./A]
+
+Apply complete! Resources: 9 added, 0 changed, 0 destroyed.

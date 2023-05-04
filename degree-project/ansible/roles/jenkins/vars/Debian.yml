@@ -1,0 +1,3 @@
+---
+# jenkins_pkg_url: https://pkg.jenkins.io/debian/binary
+jenkins_pkg_url: https://mirror.yandex.ru/mirrors/jenkins/debian{{ '-stable' if (jenkins_prefer_lts | bool) else '' }}

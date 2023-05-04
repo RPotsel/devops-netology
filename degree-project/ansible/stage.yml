@@ -1,0 +1,99 @@
+---
+- name: Deploy demo application
+  hosts: jenkins
+  gather_facts: false
+  become: false
+
+  tasks:
+
+  - name: Ensures kube dir exists on remote host
+    file:
+      path: "{{ working_dir }}"
+      state: directory
+
+  - name: Copy config on remote host
+    copy:
+      src: "{{ kubeconfig.path }}"
+      dest: "{{ working_dir }}/admin.conf"
+      owner: "{{ ansible_user }}"
+      group: "{{ ansible_user }}"
+      mode: 0600
+
+  - name: Create service account
+    shell: |
+      export KUBECONFIG=$KUBECONFIG_PATH
+      kubectl create namespace demo-app
+      kubectl -n demo-app create serviceaccount jenkins-robot
+      kubectl -n demo-app create rolebinding jenkins-robot-binding --clusterrole=cluster-admin --serviceaccount=demo-app:jenkins-robot
+      kubectl create token jenkins-robot -n demo-app --duration 488h
+    environment:
+       KUBECONFIG_PATH: "{{ working_dir }}/admin.conf"
+    register: shell_output
+
+  - debug: msg={{ shell_output.stdout_lines | last }}
+
+  - name: Copy service account token to file
+    copy:
+      content="{{ shell_output.stdout_lines | last }}"
+      dest="{{ ansible_inventory_sources[0] + '/credentials/jenkins-robot.creds' }}"
+    delegate_to: localhost
+
+  - name: Git clone stable repo demo-app
+    ansible.builtin.git:
+      repo: "https://github.com/RPotsel/demo-app.git"
+      dest: "{{ working_dir }}/helm_repo"
+
+  - name: Install demo-app
+    kubernetes.core.helm:
+      name: "{{ demo_app.name }}"
+      chart_ref: "{{ working_dir }}/helm_repo/helm/demo-app"
+      release_namespace: "{{ demo_app.namespace | default('default') }}"
+      create_namespace: yes
+      kubeconfig: "{{ working_dir }}/admin.conf"
+      release_values: "{{ demo_app['values'] }}"
+
+- name: Config Jenkins
+  hosts: jenkins
+  gather_facts: false
+  become: false
+  tasks:
+
+    - name: Create Jenkins Groovy script directory
+      file:
+        path: "~/jenkins-cli"
+        state: directory
+        mode: 0755
+
+    - name: Place the Jenkins Credentials Groovy script
+      template:
+        src: "Jenkins_AddCredentials.groovy.j2"
+        dest: "~/jenkins-cli/Jenkins_AddCredentials.groovy"
+      register: jenkins_credentials_groovy
+
+    - name: Run the Jenkins Credentials Groovy script
+      shell: "java -jar {{ jenkins_jar_location }} \
+        -auth {{ jenkins_admin_username }}:{{ jenkins_admin_password }} \
+        -s http://{{ jenkins_hostname }}:{{ jenkins_http_port }} \
+        -webSocket groovy = < ~/jenkins-cli/Jenkins_AddCredentials.groovy"
+      when: jenkins_credentials_groovy.changed
+      register: jenkins_credentials_result
+      until: jenkins_credentials_result is success
+      retries: 3
+      delay: 10
+
+    - name: Place the Jenkins Create Global Environment Variables script
+      template:
+        src: "Jenkins_CreateGlobalEnv.groovy.j2"
+        dest: "~/jenkins-cli/Jenkins_CreateGlobalEnv.groovy"
+      register: jenkins_env_groovy
+
+    - name: Run the Jenkins Create Global Environment Variables script
+      shell: "java -jar {{ jenkins_jar_location }} \
+        -auth {{ jenkins_admin_username }}:{{ jenkins_admin_password }} \
+        -s http://{{ jenkins_hostname }}:{{ jenkins_http_port }} \
+        -webSocket groovy = < ~/jenkins-cli/Jenkins_CreateGlobalEnv.groovy"
+      when: jenkins_env_groovy.changed
+      register: jenkins_env_result
+      until: jenkins_env_result is success
+      retries: 3
+      delay: 10

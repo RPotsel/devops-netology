@@ -1,0 +1,357 @@
+cd ./ansible && ansible-playbook -i ./inventory/dev dev.yml \
+	--vault-password-file ./inventory/dev/.vault
+
+PLAY [Install Jenkins] *********************************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [dev]
+
+TASK [Wait for servers to connect] *********************************************
+ok: [dev]
+
+TASK [java : Include version-specific variables for Ubuntu.] *******************
+ok: [dev]
+
+TASK [java : Ensure Java is installed.] ****************************************
+changed: [dev]
+
+TASK [java : Set JAVA_HOME if configured.] *************************************
+skipping: [dev]
+
+TASK [docker : Load OS-specific vars.] *****************************************
+ok: [dev]
+
+TASK [docker : include_tasks] **************************************************
+skipping: [dev]
+
+TASK [docker : include_tasks] **************************************************
+included: /home/rpot/projects/devops-netology/degree-project/ansible/roles/docker/tasks/setup-Debian.yml for dev
+
+TASK [docker : Ensure old versions of Docker are not installed.] ***************
+ok: [dev]
+
+TASK [docker : Ensure dependencies are installed.] *****************************
+ok: [dev]
+
+TASK [docker : Ensure additional dependencies are installed (on Ubuntu < 20.04 and any other systems).] ***
+skipping: [dev]
+
+TASK [docker : Ensure additional dependencies are installed (on Ubuntu >= 20.04).] ***
+ok: [dev]
+
+TASK [docker : Add Docker apt key.] ********************************************
+changed: [dev]
+
+TASK [docker : Ensure curl is present (on older systems without SNI).] *********
+skipping: [dev]
+
+TASK [docker : Add Docker apt key (alternative for older systems without SNI).] ***
+skipping: [dev]
+
+TASK [docker : Add Docker repository.] *****************************************
+changed: [dev]
+
+TASK [docker : Install Docker packages.] ***************************************
+skipping: [dev]
+
+TASK [docker : Install Docker packages (with downgrade option).] ***************
+changed: [dev]
+
+TASK [docker : Install docker-compose plugin.] *********************************
+skipping: [dev]
+
+TASK [docker : Install docker-compose-plugin (with downgrade option).] *********
+skipping: [dev]
+
+TASK [docker : Ensure /etc/docker/ directory exists.] **************************
+skipping: [dev]
+
+TASK [docker : Configure Docker daemon options.] *******************************
+skipping: [dev]
+
+TASK [docker : Ensure Docker is started and enabled at boot.] ******************
+ok: [dev]
+
+TASK [docker : Ensure handlers are notified now to avoid firewall conflicts.] ***
+
+RUNNING HANDLER [docker : restart docker] **************************************
+changed: [dev]
+
+TASK [docker : include_tasks] **************************************************
+included: /home/rpot/projects/devops-netology/degree-project/ansible/roles/docker/tasks/docker-compose.yml for dev
+
+TASK [docker : Check current docker-compose version.] **************************
+ok: [dev]
+
+TASK [docker : set_fact] *******************************************************
+skipping: [dev]
+
+TASK [docker : Delete existing docker-compose version if it's different.] ******
+skipping: [dev]
+
+TASK [docker : Install Docker Compose (if configured).] ************************
+changed: [dev]
+
+TASK [docker : Get docker group info using getent.] ****************************
+ok: [dev]
+
+TASK [docker : Check if there are any users to add to the docker group.] *******
+ok: [dev] => (item=jenkins)
+
+TASK [docker : include_tasks] **************************************************
+included: /home/rpot/projects/devops-netology/degree-project/ansible/roles/docker/tasks/docker-users.yml for dev
+
+TASK [docker : Ensure docker users are added to the docker group.] *************
+changed: [dev] => (item=jenkins)
+
+TASK [docker : Reset ssh connection to apply user changes.] ********************
+
+TASK [k8s_cli : Install Helm] **************************************************
+included: /home/rpot/projects/devops-netology/degree-project/ansible/roles/k8s_cli/tasks/install-helm.yml for dev
+
+TASK [k8s_cli : Check if Helm binary exists.] **********************************
+ok: [dev]
+
+TASK [k8s_cli : Check Helm version.] *******************************************
+skipping: [dev]
+
+TASK [k8s_cli : Helm current version] ******************************************
+skipping: [dev]
+
+TASK [k8s_cli : Download helm.] ************************************************
+changed: [dev]
+
+TASK [k8s_cli : Copy helm binary.] *********************************************
+changed: [dev]
+
+TASK [k8s_cli : Install kubectl] ***********************************************
+included: /home/rpot/projects/devops-netology/degree-project/ansible/roles/k8s_cli/tasks/install-kubectl.yml for dev
+
+TASK [k8s_cli : Check if kubectl binary exists.] *******************************
+ok: [dev]
+
+TASK [k8s_cli : Check kubectl version.] ****************************************
+skipping: [dev]
+
+TASK [k8s_cli : Download kubectl binary] ***************************************
+changed: [dev]
+
+TASK [k8s_cli : Copy kubectl binary.] ******************************************
+changed: [dev]
+
+TASK [jenkins : Include OS-Specific variables] *********************************
+ok: [dev]
+
+TASK [jenkins : include_tasks] *************************************************
+included: /home/rpot/projects/devops-netology/degree-project/ansible/roles/jenkins/tasks/setup-Debian.yml for dev
+
+TASK [jenkins : Ensure dependencies are installed.] ****************************
+ok: [dev]
+
+TASK [jenkins : Download specific Jenkins version.] ****************************
+changed: [dev]
+
+TASK [jenkins : Check if we downloaded a specific version of Jenkins.] *********
+ok: [dev]
+
+TASK [jenkins : Install our specific version of Jenkins.] **********************
+changed: [dev]
+
+TASK [jenkins : include_tasks] *************************************************
+included: /home/rpot/projects/devops-netology/degree-project/ansible/roles/jenkins/tasks/settings.yml for dev
+
+TASK [jenkins : Check if jenkins_init_folder exists.] **************************
+ok: [dev]
+
+TASK [jenkins : Ensure jenkins_init_folder exists.] ****************************
+changed: [dev]
+
+TASK [jenkins : Check if jenkins_init_file exists.] ****************************
+ok: [dev]
+
+TASK [jenkins : Ensure jenkins_init_file exists.] ******************************
+changed: [dev]
+
+TASK [jenkins : Populate jenkins_init_file with service tag.] ******************
+changed: [dev]
+
+TASK [jenkins : Modify variables in init file.] ********************************
+changed: [dev] => (item={'option': 'JENKINS_OPTS', 'value': ''})
+changed: [dev] => (item={'option': 'JAVA_OPTS', 'value': '-Djenkins.install.runSetupWizard=false'})
+changed: [dev] => (item={'option': 'JENKINS_HOME', 'value': '/var/lib/jenkins'})
+changed: [dev] => (item={'option': 'JENKINS_PREFIX', 'value': ''})
+changed: [dev] => (item={'option': 'JENKINS_PORT', 'value': 8080})
+
+TASK [jenkins : Ensure jenkins_home /var/lib/jenkins exists.] ******************
+ok: [dev]
+
+TASK [jenkins : Immediately restart Jenkins on init config changes.] ***********
+changed: [dev]
+
+TASK [jenkins : Create custom init scripts directory.] *************************
+changed: [dev]
+
+TASK [jenkins : Configure proxy config for Jenkins] ****************************
+skipping: [dev]
+
+TASK [jenkins : Trigger handlers immediately in case Jenkins was installed] ****
+
+RUNNING HANDLER [jenkins : configure default users] ****************************
+changed: [dev]
+
+TASK [jenkins : Immediately restart Jenkins on http or user changes.] **********
+changed: [dev]
+
+TASK [jenkins : Ensure Jenkins is started and runs on startup.] ****************
+ok: [dev]
+
+TASK [jenkins : Wait for Jenkins to start up before proceeding.] ***************
+ok: [dev]
+
+TASK [jenkins : Get the jenkins-cli jarfile from the Jenkins server.] **********
+changed: [dev]
+
+TASK [jenkins : Remove Jenkins security init scripts after first startup.] *****
+changed: [dev]
+
+TASK [jenkins : include_tasks] *************************************************
+included: /home/rpot/projects/devops-netology/degree-project/ansible/roles/jenkins/tasks/plugins.yml for dev
+
+TASK [jenkins : Get Jenkins admin password from file.] *************************
+skipping: [dev]
+
+TASK [jenkins : Set Jenkins admin password fact.] ******************************
+ok: [dev]
+
+TASK [jenkins : Install Jenkins plugins using password.] ***********************
+changed: [dev] => (item=blueocean)
+changed: [dev] => (item=docker-plugin)
+changed: [dev] => (item=docker-workflow)
+changed: [dev] => (item=remote-file)
+changed: [dev] => (item=kubernetes-credentials)
+changed: [dev] => (item=kubernetes-cli)
+
+RUNNING HANDLER [jenkins : restart jenkins] ************************************
+changed: [dev]
+
+PLAY [Config Jenkins] **********************************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [dev]
+
+TASK [Create Jenkins script directory] *****************************************
+changed: [dev]
+
+TASK [Place the Jenkins Credentials Groovy script] *****************************
+changed: [dev]
+
+TASK [Run the Jenkins Credentials Groovy script] *******************************
+changed: [dev]
+
+TASK [Place the Jenkins job] ***************************************************
+changed: [dev]
+
+TASK [Run the Jenkins Credentials Groovy script] *******************************
+changed: [dev]
+
+PLAY [Install Atlantis] ********************************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [dev]
+
+TASK [atlantis : Create atlantis group] ****************************************
+changed: [dev]
+
+TASK [atlantis : Create atlantis user] *****************************************
+changed: [dev]
+
+TASK [atlantis : Make sure unzip installed] ************************************
+changed: [dev]
+
+TASK [atlantis : Download and extract atlantis archive] ************************
+changed: [dev]
+
+TASK [atlantis : Render atlantis systemd unit file] ****************************
+changed: [dev]
+
+TASK [atlantis : Render atlantis server config] ********************************
+changed: [dev]
+
+TASK [atlantis : Copy atlantis repo config] ************************************
+changed: [dev]
+
+TASK [atlantis : Make sure Atlantis is running] ********************************
+changed: [dev]
+
+RUNNING HANDLER [atlantis : Reload Systemd Daemon] *****************************
+ok: [dev]
+
+RUNNING HANDLER [atlantis : Restart Atlantis] **********************************
+changed: [dev]
+
+TASK [Copy credentials] ********************************************************
+changed: [dev] => (item=/home/rpot/projects/devops-netology/degree-project/ansible/inventory/dev/credentials/key.json)
+changed: [dev] => (item=/home/rpot/projects/devops-netology/degree-project/ansible/inventory/dev/credentials/backend.cred)
+changed: [dev] => (item=.terraformrc)
+
+TASK [Create directory for ssh keys] *******************************************
+changed: [dev]
+
+TASK [Copy ssh key] ************************************************************
+changed: [dev]
+
+PLAY [Install nginx] ***********************************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [dev]
+
+TASK [nginx : Include OS-specific variables.] **********************************
+ok: [dev]
+
+TASK [nginx : Define nginx_user.] **********************************************
+ok: [dev]
+
+TASK [nginx : include_tasks] ***************************************************
+included: /home/rpot/projects/devops-netology/degree-project/ansible/roles/nginx/tasks/setup-Ubuntu.yml for dev
+
+TASK [nginx : Ensure dirmngr is installed (gnupg dependency).] *****************
+ok: [dev]
+
+TASK [nginx : Add PPA for Nginx (if configured).] ******************************
+changed: [dev]
+
+TASK [nginx : Ensure nginx will reinstall if the PPA was just added.] **********
+changed: [dev]
+
+TASK [nginx : Remove default nginx vhost config file (if configured).] *********
+changed: [dev]
+
+TASK [nginx : Ensure nginx_vhost_path exists.] *********************************
+ok: [dev]
+
+TASK [nginx : Add managed vhost config files.] *********************************
+changed: [dev] => (item={'listen': '80', 'server_name': 'jenkins.dev.pinbit.ru', 'filename': 'jenkins.80.conf', 'extra_parameters': 'location / {\n  proxy_pass         http://jenkins;\n  proxy_read_timeout 90;\n}\n'})
+changed: [dev] => (item={'listen': '80', 'server_name': 'atlantis.dev.pinbit.ru', 'filename': 'atlantis.80.conf', 'extra_parameters': 'location / {\n  proxy_pass         http://atlantis;\n  proxy_read_timeout 90;\n}\n'})
+
+TASK [nginx : Remove managed vhost config files.] ******************************
+skipping: [dev] => (item={'listen': '80', 'server_name': 'jenkins.dev.pinbit.ru', 'filename': 'jenkins.80.conf', 'extra_parameters': 'location / {\n  proxy_pass         http://jenkins;\n  proxy_read_timeout 90;\n}\n'}) 
+skipping: [dev] => (item={'listen': '80', 'server_name': 'atlantis.dev.pinbit.ru', 'filename': 'atlantis.80.conf', 'extra_parameters': 'location / {\n  proxy_pass         http://atlantis;\n  proxy_read_timeout 90;\n}\n'}) 
+
+TASK [nginx : Remove legacy vhosts.conf file.] *********************************
+ok: [dev]
+
+TASK [nginx : Copy nginx configuration in place.] ******************************
+changed: [dev]
+
+TASK [nginx : Ensure nginx service is running as configured.] ******************
+ok: [dev]
+
+RUNNING HANDLER [nginx : restart nginx] ****************************************
+changed: [dev]
+
+RUNNING HANDLER [nginx : reload nginx] *****************************************
+changed: [dev]
+
+PLAY RECAP *********************************************************************
+dev                        : ok=90   changed=49   unreachable=0    failed=0    skipped=18   rescued=0    ignored=0   
+

@@ -1,0 +1,21 @@
+# https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
+# kubectl get secret -n monitoring prometheus-grafana -o jsonpath="{.data.admin-password}" | base64 --decode; echo
+
+alertmanager:
+  enabled: false
+
+grafana:
+  enabled: true
+
+  adminPassword: prom-operator
+
+  ingress:
+    enabled: true
+    path: /
+    hosts:
+    - grafana.pinbit.ru
+
+nodeExporter:
+  tolerations:
+  - effect: "NoSchedule"
+    operator: "Exists"

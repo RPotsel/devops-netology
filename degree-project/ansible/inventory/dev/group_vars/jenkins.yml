@@ -1,0 +1,83 @@
+# lts https://pkg.origin.jenkins.io/debian/binary/jenkins_2.375_all.deb
+# https://pkg.jenkins.io/debian-stable/
+jenkins_prefer_lts: true
+jenkins_version: 2.375.4
+
+jenkins_home: /var/lib/jenkins
+jenkins_hostname: localhost
+jenkins_http_port: 8080
+jenkins_jar_location: /opt/jenkins-cli.jar
+
+jenkins_admin_username: admin
+jenkins_admin_password: admin
+
+jenkins_process_user: jenkins
+jenkins_process_group: "{{ jenkins_process_user }}"
+
+jenkins_plugins_install_dependencies: true
+
+jenkins_plugins:
+  - blueocean
+  - docker-plugin
+  - docker-workflow
+  - remote-file
+  - kubernetes-credentials
+  - kubernetes-cli
+  # - git
+  # - mailer
+  # - jdk-tool
+  # - jquery3-api
+  # - workflow-api
+  # - workflow-durable-task-step
+  # - workflow-step-api
+  # - workflow-support
+
+# https://nickcharlton.net/posts/setting-jenkins-credentials-with-groovy.html
+jenkins_secret_text_credentials:
+  - name: GITHUB_TOKEN
+    description: GitHub personal access token
+    text: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          62336637646565356638353864313432666365626538353262373739613464343934626265333331
+          3734646131653939666430343430643630363239386133360a316132373137663033303562313435
+          61613335623761613330616562303166313862613164343830396334376632323066336165393863
+          3731313465363061320a373835663436303164326466303834626463323163333833656261616365
+          37326462616464373266323962396633663834376461333765356233393466373130616430666334
+          3532383935656365343832643961613763656166333332396432
+jenkins_ssh_credentials: []
+#   - name: SSH_KEY
+#     username: PRIVATE_KEY_USERNAME
+#     private_key: |
+#       -----BEGIN OPENSSH PRIVATE KEY-----
+#       ...
+#       -----END OPENSSH PRIVATE KEY-----
+#     passphrase: PRIVATE_KEY_PASSPHRASE
+#     description: SECRET_DESCRIPTION
+jenkins_username_password_credentials:
+  - name: GITHUB_USER
+    description: Github user
+    username: USERNAME
+    password: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          63356436323465343966343762313463386565666564356230396437333566353664363530366633
+          3764313263663937656635643637326333353761356534330a393637353063353562643666626661
+          36633638623331623833613535356139643934396139386237303134393435666636396137636338
+          3730626635363036360a363438326262633631663137386635646561666531303761363761643337
+          65663939626337663032396333356232363766363237393761323866623636616437366238323163
+          6361313434313133646365643662376133373735323464663432
+  # https://docs.docker.com/docker-hub/access-tokens/
+  - name: DOCKERHUB_USER
+    description: Docker hub user
+    username: rpot
+    password: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          61633635643534656566343464336232363264646264383365363638313537343933373737653666
+          3432613735633138333436313736303137633839343466650a303061393263366436346363623566
+          30323961373131353137306337363461616561656336613539643038353337623434313831366461
+          6530376136383638340a616131633361366232393531633664666465306665363233633266666335
+          65303732336231643561383130353038613933323235383538323339623631393063316565363538
+          6332396330623061313737363464316432623164393732306239
+
+docker_install_compose: true
+docker_compose_version: "v2.16.0"
+docker_users: ["{{ jenkins_process_user }}"]

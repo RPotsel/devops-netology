@@ -1,0 +1,3 @@
+ansible_user: ubuntu
+ansible_ssh_private_key_file: ~/.ssh/id_rsa
+ansible_ssh_common_args: '-o ProxyCommand="ssh -W %h:%p -q ubuntu@dev.pinbit.ru"'

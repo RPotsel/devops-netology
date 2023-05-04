@@ -1,0 +1,30 @@
+---
+- name: Check if kubectl binary exists.
+  stat:
+    path: "{{ bin_dir }}/kubectl"
+  register: kubectl_check
+
+- name: Check kubectl version.
+  command: "{{ bin_dir }}/kubectl version --client -o json"
+  failed_when: no
+  changed_when: no
+  register: kubectl_current_version
+  when: kubectl_check.stat.exists
+
+- name: Install kubectl.
+  block:
+    - name: Download kubectl binary
+      get_url:
+        url: "https://dl.k8s.io/release/v{{ kubectl_version }}/bin/{{ k8s_platform }}/{{ k8s_arch }}/kubectl"
+        dest: /tmp
+
+    - name: Copy kubectl binary.
+      copy:
+        src: /tmp/kubectl
+        dest: "{{ bin_dir }}"
+        mode: 0755
+        remote_src: true
+
+  when: >
+    not kubectl_check.stat.exists
+    or kubectl_version not in kubectl_current_version.stdout

@@ -1,0 +1,12 @@
+[Unit]
+Description=Atlantis Terraform server
+After=network.target
+
+[Service]
+Type=simple
+User={{ atlantis_server_user }}
+Group={{ atlantis_server_group }}
+ExecStart=/usr/local/bin/atlantis server --config {{ atlantis_data_dir }}/config.yaml --repo-config {{ atlantis_data_dir }}/repos.yaml --enable-diff-markdown-format
+
+[Install]
+WantedBy=multi-user.target

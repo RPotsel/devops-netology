@@ -1,0 +1,62 @@
+---
+- name: "Create atlantis group"
+  group:
+    name: "{{ atlantis_server_group }}"
+    state: present
+    system: yes
+
+- name: "Create atlantis user"
+  user:
+    name: "{{ atlantis_server_user }}"
+    group: "{{ atlantis_server_group }}"
+    # groups: www-data
+    state: present
+    # shell: /bin/bash
+    createhome: yes
+    system: yes
+    home: "{{ atlantis_data_dir }}"
+
+- name: Make sure unzip installed
+  apt:
+    name: unzip
+    state: present
+
+- name: Download and extract atlantis archive
+  unarchive:
+    remote_src: true
+    src: "{{ atlantis_binary_url }}"
+    dest: /usr/local/bin
+    owner: "{{ atlantis_server_user }}"
+    group: "{{ atlantis_server_group }}"
+
+- name: Prepare atlantis service
+  block:
+  - name: Render atlantis systemd unit file
+    template:
+      src: atlantis.service.j2
+      dest: /lib/systemd/system/atlantis.service
+
+  - name: Render atlantis server config
+    template:
+      src: config.yaml.j2
+      dest: "{{ atlantis_data_dir }}/config.yaml"
+      owner: "{{ atlantis_server_user }}"
+      group: "{{ atlantis_server_group }}"
+      mode: "0640"
+
+  - name: Copy atlantis repo config
+    copy:
+      src: repos.yaml
+      dest: "{{ atlantis_data_dir }}/repos.yaml"
+      owner: "{{ atlantis_server_user }}"
+      group: "{{ atlantis_server_group }}"
+      mode: "0644"
+  notify:
+    - Reload Systemd Daemon
+    - Restart Atlantis
+
+- name: Make sure Atlantis is running
+  service:
+    name: atlantis
+    state: started
+    enabled: true

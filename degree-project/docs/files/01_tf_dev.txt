@@ -1,0 +1,324 @@
+$ make WORKSPACE=dev tf-plan
+terraform -chdir=demo-app init -input=false --reconfigure
+Initializing modules...
+
+Initializing the backend...
+
+Successfully configured the backend "s3"! Terraform will automatically
+use this backend unless the backend configuration changes.
+
+Initializing provider plugins...
+- Reusing previous version of hashicorp/template from the dependency lock file
+- Reusing previous version of yandex-cloud/yandex from the dependency lock file
+- Using previously-installed hashicorp/template v2.2.0
+- Using previously-installed yandex-cloud/yandex v0.89.0
+
+Terraform has been successfully initialized!
+
+You may now begin working with Terraform. Try running "terraform plan" to see
+any changes that are required for your infrastructure. All Terraform commands
+should now work.
+
+If you ever set or change modules or backend configuration for Terraform,
+rerun this command to reinitialize your working directory. If you forget, other
+commands will detect it and remind you to do so if necessary.
+terraform -chdir=demo-app workspace select dev || \
+	terraform -chdir=demo-app workspace new dev
+
+Workspace "dev" doesn't exist.
+
+You can create this workspace with the "new" subcommand.
+Created and switched to workspace "dev"!
+
+You're now on a new, empty workspace. Workspaces isolate their state,
+so if you run "terraform plan" Terraform will not see any existing state
+for this configuration.
+terraform -chdir=demo-app plan -input=false -refresh -out=tfplan -var-file dev.tfvars
+module.vpc.data.yandex_vpc_network.this: Reading...
+module.vpc.data.yandex_vpc_network.this: Read complete after 0s [id=enp77dav1u3pidr80e1s]
+
+Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
+  + create
+ <= read (data resources)
+
+Terraform will perform the following actions:
+
+  # module.instances["0"].data.template_file.this will be read during apply
+  # (depends on a resource or a module with changes pending)
+ <= data "template_file" "this" {
+      + id       = (known after apply)
+      + rendered = (known after apply)
+      + template = <<-EOT
+            #cloud-config
+            users:
+              - name: ${username}
+                groups: ${user_groups}
+                shell: /bin/bash
+                sudo: ['ALL=(ALL) NOPASSWD:ALL']
+                lock_passwd: false
+                passwd: ${password}
+                ssh_authorized_keys:
+                  - ${ssh_key}
+            runcmd:
+              - touch /var/lib/cloud/instance/warnings/.skip
+        EOT
+      + vars     = {
+          + "password"    = ""
+          + "ssh_key"     = <<-EOT
+                ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDQ3ItRqTL0EjRpDHhq1bUUjlp+cgIo+NL5r50vpM4XclKEVXBjMMZleTnLhKq2FwKuCtG6u/QPEvg5tsYBIhbC5yu1mWeJUi0LacHG6em+/kHrG+bmZLENxg7MTLDOis1yWkYcbrpJ7jEZ+GlDAGSEFHDoHubgLTrEWfdPrEQTxNCkq6CeO43Yj92EOkcWoiNw7Vl7NIy7CWaK/hqHDvEOpJM+3lRZ1aHxeHVrQ3zUBq89VpogPEOq6AUpCqFb6awwEnB4zFz19K36TIKkf0jc3Icf3gAZIX9zjzQUpSVkJ5Opv8WxYfqh1AgZ5Xcbvc1fW5Zpnt0piL48dxXAVvshLz1nMdvTFgwr2jT26wDarnqhVUBxmN2tslJ7dxkn3y0VCd3s8PzyRH8bxf0Qio1ViC6PkyHVD+q1Je0AxLj7no8HWKzNnvjVuz3r03awOzZrGdqPFsPgGddzfnDrVRDqlS8V69L4FvKCR9v7BUM2vnVzYbJfxFAuSemOkBbyYd+bRZ6mnsufnjx8RhEZ682BpIh+qfUCDiTeh5M/+BrudZiv74orq9eboloKWYMsg+atYHjBJKaGsEu+iipuY9K7hEd/65DQLc+gtCTYEY/x2I6EbqWA3zexuFVS0XOK4QdI8iGhDw3ERh/Vc+E9Nnk3vpv/05T8huZWsWDGKdZKaQ== rpotsel@gmail.com
+            EOT
+          + "user_groups" = "sudo"
+          + "username"    = "ubuntu"
+        }
+    }
+
+  # module.instances["0"].data.yandex_compute_image.this will be read during apply
+  # (depends on a resource or a module with changes pending)
+ <= data "yandex_compute_image" "this" {
+      + created_at    = (known after apply)
+      + description   = (known after apply)
+      + family        = "ubuntu-2004-lts"
+      + folder_id     = (known after apply)
+      + id            = (known after apply)
+      + image_id      = (known after apply)
+      + labels        = (known after apply)
+      + min_disk_size = (known after apply)
+      + name          = (known after apply)
+      + os_type       = (known after apply)
+      + pooled        = (known after apply)
+      + product_ids   = (known after apply)
+      + size          = (known after apply)
+      + status        = (known after apply)
+    }
+
+  # module.instances["0"].data.yandex_dns_zone.this[0] will be read during apply
+  # (depends on a resource or a module with changes pending)
+ <= data "yandex_dns_zone" "this" {
+      + created_at       = (known after apply)
+      + description      = (known after apply)
+      + dns_zone_id      = (known after apply)
+      + folder_id        = (known after apply)
+      + id               = (known after apply)
+      + labels           = (known after apply)
+      + name             = "demo-zone"
+      + private_networks = (known after apply)
+      + public           = (known after apply)
+      + zone             = (known after apply)
+
+      + timeouts {
+          + create = (known after apply)
+          + delete = (known after apply)
+          + update = (known after apply)
+        }
+    }
+
+  # module.instances["0"].data.yandex_vpc_subnet.this will be read during apply
+  # (depends on a resource or a module with changes pending)
+ <= data "yandex_vpc_subnet" "this" {
+      + created_at     = (known after apply)
+      + description    = (known after apply)
+      + dhcp_options   = (known after apply)
+      + folder_id      = (known after apply)
+      + id             = (known after apply)
+      + labels         = (known after apply)
+      + name           = "dev-a"
+      + network_id     = (known after apply)
+      + route_table_id = (known after apply)
+      + subnet_id      = (known after apply)
+      + v4_cidr_blocks = (known after apply)
+      + v6_cidr_blocks = (known after apply)
+      + zone           = (known after apply)
+    }
+
+  # module.instances["0"].yandex_compute_instance.this["dev"] will be created
+  + resource "yandex_compute_instance" "this" {
+      + allow_stopping_for_update = true
+      + created_at                = (known after apply)
+      + folder_id                 = (known after apply)
+      + fqdn                      = (known after apply)
+      + gpu_cluster_id            = (known after apply)
+      + hostname                  = "dev"
+      + id                        = (known after apply)
+      + labels                    = {
+          + "env"           = "dev"
+          + "group_dev_1"   = "jenkins"
+          + "group_dev_2"   = "nginx"
+          + "group_dev_3"   = "docker"
+          + "group_dev_4"   = "atlantis"
+          + "group_prod_1"  = "jenkins"
+          + "group_stage_1" = "jenkins"
+        }
+      + metadata                  = (known after apply)
+      + name                      = "dev"
+      + network_acceleration_type = "standard"
+      + platform_id               = "standard-v1"
+      + service_account_id        = (known after apply)
+      + status                    = (known after apply)
+      + zone                      = "ru-central1-a"
+
+      + boot_disk {
+          + auto_delete = true
+          + device_name = (known after apply)
+          + disk_id     = (known after apply)
+          + mode        = (known after apply)
+
+          + initialize_params {
+              + block_size  = (known after apply)
+              + description = (known after apply)
+              + image_id    = (known after apply)
+              + name        = (known after apply)
+              + size        = 20
+              + snapshot_id = (known after apply)
+              + type        = "network-hdd"
+            }
+        }
+
+      + metadata_options {
+          + aws_v1_http_endpoint = (known after apply)
+          + aws_v1_http_token    = (known after apply)
+          + gce_http_endpoint    = (known after apply)
+          + gce_http_token       = (known after apply)
+        }
+
+      + network_interface {
+          + index              = (known after apply)
+          + ip_address         = (known after apply)
+          + ipv4               = true
+          + ipv6               = (known after apply)
+          + ipv6_address       = (known after apply)
+          + mac_address        = (known after apply)
+          + nat                = true
+          + nat_ip_address     = (known after apply)
+          + nat_ip_version     = (known after apply)
+          + security_group_ids = (known after apply)
+          + subnet_id          = (known after apply)
+        }
+
+      + placement_policy {
+          + host_affinity_rules = (known after apply)
+          + placement_group_id  = (known after apply)
+        }
+
+      + resources {
+          + core_fraction = 20
+          + cores         = 2
+          + memory        = 4
+        }
+
+      + scheduling_policy {
+          + preemptible = (known after apply)
+        }
+    }
+
+  # module.instances["0"].yandex_dns_recordset.this["dev"] will be created
+  + resource "yandex_dns_recordset" "this" {
+      + data    = (known after apply)
+      + id      = (known after apply)
+      + name    = (known after apply)
+      + ttl     = 200
+      + type    = "A"
+      + zone_id = (known after apply)
+    }
+
+  # module.vpc.yandex_vpc_security_group.this["0"] will be created
+  + resource "yandex_vpc_security_group" "this" {
+      + created_at  = (known after apply)
+      + description = "Developer security groups"
+      + folder_id   = (known after apply)
+      + id          = (known after apply)
+      + labels      = (known after apply)
+      + name        = "dev-sg"
+      + network_id  = "enp77dav1u3pidr80e1s"
+      + status      = (known after apply)
+
+      + egress {
+          + description    = "any"
+          + from_port      = -1
+          + id             = (known after apply)
+          + labels         = (known after apply)
+          + port           = -1
+          + protocol       = "ANY"
+          + to_port        = -1
+          + v4_cidr_blocks = [
+              + "0.0.0.0/0",
+            ]
+          + v6_cidr_blocks = []
+        }
+
+      + ingress {
+          + description    = "SSH"
+          + from_port      = -1
+          + id             = (known after apply)
+          + labels         = (known after apply)
+          + port           = 22
+          + protocol       = "TCP"
+          + to_port        = -1
+          + v4_cidr_blocks = [
+              + "0.0.0.0/0",
+            ]
+          + v6_cidr_blocks = []
+        }
+      + ingress {
+          + description    = "ext-http"
+          + from_port      = -1
+          + id             = (known after apply)
+          + labels         = (known after apply)
+          + port           = 80
+          + protocol       = "TCP"
+          + to_port        = -1
+          + v4_cidr_blocks = [
+              + "0.0.0.0/0",
+            ]
+          + v6_cidr_blocks = []
+        }
+    }
+
+  # module.vpc.yandex_vpc_subnet.this["0"] will be created
+  + resource "yandex_vpc_subnet" "this" {
+      + created_at     = (known after apply)
+      + folder_id      = (known after apply)
+      + id             = (known after apply)
+      + labels         = {
+          + "env" = "dev"
+        }
+      + name           = "dev-a"
+      + network_id     = "enp77dav1u3pidr80e1s"
+      + v4_cidr_blocks = [
+          + "192.168.0.0/24",
+        ]
+      + v6_cidr_blocks = (known after apply)
+      + zone           = "ru-central1-a"
+    }
+
+Plan: 4 to add, 0 to change, 0 to destroy.
+
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+Saved the plan to: tfplan
+
+To perform exactly these actions, run the following command to apply:
+    terraform apply "tfplan"
+
+$ make WORKSPACE=dev tf-apply 
+cd ./demo-app && terraform apply tfplan
+module.vpc.yandex_vpc_subnet.this["0"]: Creating...
+module.vpc.yandex_vpc_security_group.this["0"]: Creating...
+module.vpc.yandex_vpc_subnet.this["0"]: Creation complete after 2s [id=e9b4n7ujmb40go1hccf0]
+module.vpc.yandex_vpc_security_group.this["0"]: Creation complete after 4s [id=enphnhjpur2lh9q8llqi]
+module.instances["0"].data.yandex_dns_zone.this[0]: Reading...
+module.instances["0"].data.yandex_compute_image.this: Reading...
+module.instances["0"].data.template_file.this: Reading...
+module.instances["0"].data.yandex_vpc_subnet.this: Reading...
+module.instances["0"].data.template_file.this: Read complete after 0s [id=c843d2cce905a7a6fe992e052e8963b03cbacee36ed83a554e18506b061bc8a4]
+module.instances["0"].data.yandex_dns_zone.this[0]: Read complete after 0s [id=dnsbn0rnbq0huajlta3l]
+module.instances["0"].data.yandex_compute_image.this: Read complete after 0s [id=fd8gfg42q4551cvt340b]
+module.instances["0"].data.yandex_vpc_subnet.this: Read complete after 1s [id=e9b4n7ujmb40go1hccf0]
+module.instances["0"].yandex_compute_instance.this["dev"]: Creating...
+module.instances["0"].yandex_compute_instance.this["dev"]: Still creating... [10s elapsed]
+module.instances["0"].yandex_compute_instance.this["dev"]: Still creating... [20s elapsed]
+module.instances["0"].yandex_compute_instance.this["dev"]: Still creating... [30s elapsed]
+module.instances["0"].yandex_compute_instance.this["dev"]: Still creating... [40s elapsed]
+module.instances["0"].yandex_compute_instance.this["dev"]: Creation complete after 41s [id=fhmbumfln1lfj3mngtg0]
+module.instances["0"].yandex_dns_recordset.this["dev"]: Creating...
+module.instances["0"].yandex_dns_recordset.this["dev"]: Creation complete after 0s [id=dnsbn0rnbq0huajlta3l/dev.pinbit.ru./A]
+

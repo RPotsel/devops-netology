@@ -1,0 +1,9 @@
+---
+- name: Reload Systemd Daemon
+  systemd:
+    daemon_reload: true
+
+- name: Restart Atlantis
+  service:
+    name: atlantis
+    state: restarted

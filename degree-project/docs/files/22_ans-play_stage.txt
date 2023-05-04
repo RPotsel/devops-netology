@@ -1,0 +1,48 @@
+cd ./ansible && ansible-playbook -i ./inventory/stage stage.yml \
+	--vault-password-file ./inventory/stage/.vault
+
+PLAY [Deploy demo application] *************************************************
+
+TASK [Ensures kube dir exists on remote host] **********************************
+changed: [dev]
+
+TASK [Copy config on remote host] **********************************************
+changed: [dev]
+
+TASK [Create service account] **************************************************
+changed: [dev]
+
+TASK [debug] *******************************************************************
+ok: [dev] => {
+    "msg": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjhpdXAyVW1td0FKYUxYaDVBd3N0Qk4weUx0dU5ldEdDMjlDZVhnTGZxWGsifQ.eyJhdWQiOlsiaHR0cHM6Ly9rdWJlcm5ldGVzLmRlZmF1bHQuc3ZjLmNsdXN0ZXIubG9jYWwiXSwiZXhwIjoxNjg0OTgzMzQ3LCJpYXQiOjE2ODMyMjY1NDcsImlzcyI6Imh0dHBzOi8va3ViZXJuZXRlcy5kZWZhdWx0LnN2Yy5jbHVzdGVyLmxvY2FsIiwia3ViZXJuZXRlcy5pbyI6eyJuYW1lc3BhY2UiOiJkZW1vLWFwcCIsInNlcnZpY2VhY2NvdW50Ijp7Im5hbWUiOiJqZW5raW5zLXJvYm90IiwidWlkIjoiNmVkNzYwYWYtYTljZi00NDBjLWIyMjctNGM0ZmU4OTJiMGYwIn19LCJuYmYiOjE2ODMyMjY1NDcsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDpkZW1vLWFwcDpqZW5raW5zLXJvYm90In0.w1y0YZdBxznsvvpEdus9i-g5pzPsfbh7i_ifbHWQAXW0wuELTEU5FQBWZXgdmikGv3q-m5Y1VCyAoWnLsHeMgn6zxOxk-M3VaZkE7JiTG4CTdLryVZl5vl2VFZqEPxs25fJwiCV9Xx2fyX6fgZXnLCOyyhVMnM-jtlfDD2ZH9y9_SOLYXPTncHxRSl7aD4zEsQZ7Xzh4MagrXpYyiKRjoSrP_InQs4mWE9EkYd_my8LNWLAgtZUMOtzvyJrwIVXwJs_pEBrKdOq7uu8VYrH2brohM4Z9LirDQ9BDbT_LJB51SyN5r-CV8m4hp6aTau6kyYC0Awzyc2eH2Ik6UkaTKg"
+}
+
+TASK [Copy service account token to file] **************************************
+changed: [dev -> localhost]
+
+TASK [Git clone stable repo demo-app] ******************************************
+changed: [dev]
+
+TASK [Install demo-app] ********************************************************
+changed: [dev]
+
+PLAY [Config Jenkins] **********************************************************
+
+TASK [Create Jenkins Groovy script directory] **********************************
+ok: [dev]
+
+TASK [Place the Jenkins Credentials Groovy script] *****************************
+changed: [dev]
+
+TASK [Run the Jenkins Credentials Groovy script] *******************************
+changed: [dev]
+
+TASK [Place the Jenkins Create Global Environment Variables script] ************
+changed: [dev]
+
+TASK [Run the Jenkins Create Global Environment Variables script] **************
+changed: [dev]
+
+PLAY RECAP *********************************************************************
+dev                        : ok=12    changed=10    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+

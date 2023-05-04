@@ -1,0 +1,27 @@
+# Kubespray
+**/kubespray/*
+
+# Local .terraform directories
+**/.terraform/*
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
+
+# tfvars
+*.tfvars
+
+# Ignore CLI configuration files
+# .terraformrc
+terraform.rc
+.terraform.lock*
+
+# credentials
+key.json
+credentials
+.vault
+*.cred*
+artifacts
+
+# Python
+__pycache__

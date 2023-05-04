@@ -1,0 +1,109 @@
+---
+- name: Install Jenkins
+  hosts: jenkins
+  become: true
+
+  pre_tasks:
+    - name: Wait for servers to connect
+      wait_for_connection:
+        connect_timeout: 20
+        sleep: 20
+        delay: 5
+        timeout: 600
+
+  roles:
+    - role: java
+    - role: docker
+    - role: k8s_cli
+    - role: jenkins
+  tags: jenkins
+
+- name: Config Jenkins
+  hosts: jenkins
+  become: false
+  tasks:
+
+    - name: Create Jenkins script directory
+      file:
+        path: "~/jenkins-cli"
+        state: directory
+        mode: 0755
+
+    - name: Place the Jenkins Credentials Groovy script
+      template:
+        src: "Jenkins_AddCredentials.groovy.j2"
+        dest: "~/jenkins-cli/Jenkins_AddCredentials.groovy"
+      register: jenkins_credentials_groovy
+
+    - name: Run the Jenkins Credentials Groovy script
+      shell: "java -jar {{ jenkins_jar_location }} \
+        -auth {{ jenkins_admin_username }}:{{ jenkins_admin_password }} \
+        -s http://{{ jenkins_hostname }}:{{ jenkins_http_port }} \
+        -webSocket groovy = < ~/jenkins-cli/Jenkins_AddCredentials.groovy"
+      when: jenkins_credentials_groovy.changed
+      register: jenkins_credentials_result
+      until: jenkins_credentials_result is success
+      retries: 3
+      delay: 10
+
+    - name: Place the Jenkins job
+      template:
+        src: "demo-app-job.xml"
+        dest: "~/jenkins-cli/demo-app-job.xml"
+      register: demo_app_job
+
+    - name: Run the Jenkins Credentials Groovy script
+      shell: "java -jar {{ jenkins_jar_location }} \
+        -auth {{ jenkins_admin_username }}:{{ jenkins_admin_password }} \
+        -s http://{{ jenkins_hostname }}:{{ jenkins_http_port }} \
+        create-job demo-app < ~/jenkins-cli/demo-app-job.xml"
+      when: demo_app_job.changed
+      register: jenkins_job_result
+      until: jenkins_job_result is success
+      retries: 3
+      delay: 10
+
+- name: Install Atlantis
+  hosts: atlantis
+  become: true
+
+  roles:
+    - role: atlantis
+  tags: atlantis
+
+  post_tasks:
+    - name: Copy credentials
+      copy:
+        src: "{{ item }}"
+        dest: /home/atlantis/
+        owner: atlantis
+        group: atlantis
+        mode: 0640
+      with_items:
+        - "{{ ansible_inventory_sources[0] }}/credentials/key.json"
+        - "{{ ansible_inventory_sources[0] }}/credentials/backend.cred"
+        - .terraformrc
+
+    - name: Create directory for ssh keys
+      file:
+        name: /home/atlantis/.ssh/
+        state: directory
+        owner: atlantis
+        group: atlantis
+        mode: 0740
+
+    - name: Copy ssh key
+      copy:
+        src: ~/.ssh/id_rsa.pub
+        dest: /home/atlantis/.ssh/
+        owner: atlantis
+        group: atlantis
+        mode: 0640
+
+- name: Install nginx
+  hosts: nginx
+  become: true
+
+  roles:
+    - role: nginx
+  tags: nginx

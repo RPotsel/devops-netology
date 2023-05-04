@@ -1,0 +1,66 @@
+cd ./ansible && ansible-playbook -i ./inventory/prod prod.yml \
+	--vault-password-file ./inventory/prod/.vault
+
+PLAY [Deploy demo application and Monitoring] **********************************
+
+TASK [Ensures kube dir exists on remote host] **********************************
+changed: [dev]
+
+TASK [Copy config on remote host] **********************************************
+changed: [dev]
+
+TASK [Create service account] **************************************************
+changed: [dev]
+
+TASK [debug] *******************************************************************
+ok: [dev] => {
+    "msg": "eyJhbGciOiJSUzI1NiIsImtpZCI6IlFIbEpqQndnUlFSNjRERHVWQWJwaXFpNDhHYVA0OVNYZ2Z4YXpyZUVQT2MifQ.eyJhdWQiOlsiaHR0cHM6Ly9rdWJlcm5ldGVzLmRlZmF1bHQuc3ZjLmNsdXN0ZXIubG9jYWwiXSwiZXhwIjoxNjg0OTg0MjIxLCJpYXQiOjE2ODMyMjc0MjEsImlzcyI6Imh0dHBzOi8va3ViZXJuZXRlcy5kZWZhdWx0LnN2Yy5jbHVzdGVyLmxvY2FsIiwia3ViZXJuZXRlcy5pbyI6eyJuYW1lc3BhY2UiOiJkZW1vLWFwcCIsInNlcnZpY2VhY2NvdW50Ijp7Im5hbWUiOiJqZW5raW5zLXJvYm90IiwidWlkIjoiMTc1NzFiN2QtNWQyYS00NWIxLThhOTYtY2U2ZTRmNzYzODg3In19LCJuYmYiOjE2ODMyMjc0MjEsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDpkZW1vLWFwcDpqZW5raW5zLXJvYm90In0.AjaG727WhW8r4o6aMoqQAOzlgXo0F_EunhvmJFMC2oZgrVKKzjXXPRLDxzmwuf1wFLSvxjxzurCjX0uYkEcyuG3Koy0SNyoOkPClaVwF_BZf-vIOMKz8tg78XaCv75oUHyDDYhvMFsmeMO82Ic3iUi0Y8YIesGkmeGiMkDVa8-0cttpUpeIMfsbezn3P3bVGQXtGj1G1gQD-DhVOge4U9s5QgHdLkjx_2G4uWtcqFrBVdvRuhJ3AVvQVuR5BHVplPtUJwX97mjqBbGrxwRKb-e62Bpa9KfMHAY-W8_Rgmz-gAtBLHmrJg_Wnr20ruBFxeHc2s_Qp9bL0DvQCcflaLA"
+}
+
+TASK [Copy service account token to file] **************************************
+changed: [dev -> localhost]
+
+TASK [Git clone stable repo demo-app] ******************************************
+changed: [dev]
+
+TASK [Install demo-app] ********************************************************
+changed: [dev]
+
+TASK [Add chart repo prometheus-community] *************************************
+changed: [dev]
+
+TASK [Copy monitoring values] **************************************************
+changed: [dev]
+
+TASK [Install kube-prometheus-stack] *******************************************
+changed: [dev]
+
+TASK [Install python3-pip] *****************************************************
+changed: [dev]
+
+TASK [Install kubernetes python package for k8s] *******************************
+changed: [dev]
+
+TASK [Install dashboards] ******************************************************
+changed: [dev] => (item=/home/ubuntu/demo-app-prod/monitoring/dashboards/demo-app.yml)
+
+PLAY [Config Jenkins] **********************************************************
+
+TASK [Create Jenkins Groovy script directory] **********************************
+ok: [dev]
+
+TASK [Place the Jenkins Credentials Groovy script] *****************************
+changed: [dev]
+
+TASK [Run the Jenkins Credentials Groovy script] *******************************
+changed: [dev]
+
+TASK [Place the Jenkins Create Global Environment Variables script] ************
+changed: [dev]
+
+TASK [Run the Jenkins Create Global Environment Variables script] **************
+changed: [dev]
+
+PLAY RECAP *********************************************************************
+dev                        : ok=18    changed=16    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+

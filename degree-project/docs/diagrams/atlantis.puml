@@ -1,0 +1,16 @@
+@startuml Atlantis sequence diagram
+!theme mars
+actor Dev
+Dev -> GitHub: ""git pish""
+Dev -> GitHub: Create Pull Request
+Dev -> GitHub: Add comment\n'atlantis plan' to PR
+GitHub -> atlantis: GitHub API hook
+atlantis -> GitHub: ""git pull""
+atlantis -> atlantis: ""terraform plan""
+atlantis -> GitHub: Add output\nto PR comment
+Dev -> GitHub: Approve PR
+Dev -> GitHub: Add comment\n'atlantis apply' to PR
+GitHub -> atlantis: GitHub API hook
+atlantis -> YandexCloud: ""terraform apply""
+Dev -> GitHub: Merge Pull Request
+@enduml

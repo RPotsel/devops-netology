@@ -1,0 +1,8 @@
+---
+- name: Install Helm
+  include_tasks: install-helm.yml
+  when: install_helm
+
+- name: Install kubectl
+  include_tasks: install-kubectl.yml
+  when: install_kubectl

@@ -1,0 +1,38 @@
+working_dir: /home/{{ ansible_user }}/demo-app-stage
+
+# Values for jenkins configuration
+jenkins_home: /var/lib/jenkins
+jenkins_hostname: localhost
+jenkins_http_port: 8080
+jenkins_jar_location: /opt/jenkins-cli.jar
+
+jenkins_admin_username: admin
+jenkins_admin_password: admin
+
+jenkins_process_user: jenkins
+jenkins_process_group: "{{ jenkins_process_user }}"
+
+jenkins_secret_text_credentials:
+  - name: STAGE_JENKINS_ROBOT_TOKEN
+    description: Plain Jenkins Robot Token for Stage
+    text: "{{ lookup('file', ansible_inventory_sources[0] + '/credentials/jenkins-robot.creds') }}"
+jenkins_ssh_credentials: []
+jenkins_username_password_credentials: []
+
+jenkins_global_vars:
+  - name: STAGE_CLUSTER_URL
+    value: "https://{{ hostvars[groups['kube_control_plane'][0]].ansible_host }}:6443"
+
+# Values for kubernetes configuration
+kubeconfig:
+  path: "{{ ansible_inventory_sources[0] }}/artifacts/admin.conf"
+
+demo_app:
+  name: demo-app
+  namespace: demo-app
+  values:
+    ingress.host: demo.pinbit.ru
+    gowebserver:
+      env:
+      - name: WORKSPACE
+        value: STAGE

@@ -1,0 +1,45 @@
+nginx_ppa_use: true
+nginx_ppa_version: stable
+
+nginx_remove_default_vhost: true
+
+nginx_worker_processes: 1
+nginx_listen_ipv6: false
+
+nginx_extra_http_options: |
+  proxy_set_header   Host $host:$server_port;
+  proxy_set_header   X-Real-IP $remote_addr;
+  proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+  proxy_set_header   X-Forwarded-Proto $scheme;
+
+nginx_vhosts:
+  - listen: "80"
+    server_name: "jenkins.dev.pinbit.ru"
+    filename: "jenkins.80.conf"
+    extra_parameters: |
+      location / {
+        proxy_pass         http://jenkins;
+        proxy_read_timeout 90;
+      }
+
+  - listen: "80"
+    server_name: "atlantis.dev.pinbit.ru"
+    filename: "atlantis.80.conf"
+    extra_parameters: |
+      location / {
+        proxy_pass         http://atlantis;
+        proxy_read_timeout 90;
+      }
+
+nginx_upstreams:
+  - name: jenkins
+    strategy: "ip_hash" # "least_conn", etc.
+    keepalive: 16 # optional
+    servers:
+      - "127.0.0.1:8080"
+
+  - name: atlantis
+    strategy: "ip_hash" # "least_conn", etc.
+    keepalive: 16 # optional
+    servers:
+      - "127.0.0.1:4141"
