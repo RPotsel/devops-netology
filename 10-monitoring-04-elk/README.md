@@ -1,4 +1,4 @@
-# 10.04. ELK - Роман Поцелуев
+# 10.04. ELK
 
 <details>
   <summary>Дополнительная информация (Click to expand)</summary>

@@ -1,4 +1,4 @@
-# 6.5. Elasticsearch - Роман Поцелуев
+# 6.5. Elasticsearch
 
 ## Задача 1
 

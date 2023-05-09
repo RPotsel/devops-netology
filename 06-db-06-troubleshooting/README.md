@@ -1,4 +1,4 @@
-# 6.6. Troubleshooting - Роман Поцелуев
+# 6.6. Troubleshooting
 
 ## Задача 1
 

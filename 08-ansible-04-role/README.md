@@ -1,4 +1,4 @@
-# 8.4 Работа с Roles - Роман Поцелуев
+# 8.4 Работа с Roles
 
 [Playbook](./playbook/) выполняет развертывание СУБД ClickHouse, роутера событий Vector и легковесного веб-интерфейса для ClickHouse - LightHouse на ВМ.
 

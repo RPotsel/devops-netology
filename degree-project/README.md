@@ -414,7 +414,7 @@ worker-prod-02    Ready    <none>          31m   v1.25.6   192.168.2.19   <none>
 - `Ansible` роль [java](./ansible/roles/java) для установки `JVM`;
 - `Ansible` роль [jenkins](./ansible/roles/jenkins) для установки в сервера автоматизации `Jenkins` и его плагинов;
 - `Ansible` роль [k8s_cli](./ansible/roles/k8s_cli) для установки консолей `kubercli` и `helm`;
-- `Ansible` роль [nginx](./ansible/roles/nginxПлейбук [dev.yml](./ansible/dev.yml))для установки сервера `nginx`;
+- `Ansible` роль [nginx](./ansible/roles/nginx) для установки сервера `nginx`;
 - `Ansible` плейбук [dev.yml](./ansible/dev.yml) для деплоя в **dev** среде, выполняет установку ПП `atlantis`, `docker`, `java`, `kubercli`,  `helm`, `nginx` и использует следующие параметры:
   - [atlantis.yml](./ansible/inventory/dev/group_vars/atlantis.yml) для роли `atlantis`;
   - [jenkins.yml](./ansible/inventory/dev/group_vars/jenkins.yml) для роли `jenkins`, `docker`;
@@ -513,7 +513,7 @@ monitoring    prometheus-prometheus-node-exporter                  ClusterIP   1
 ---
 ### Установка и настройка CI/CD
 
-Развертывание сервера `Jenkins` выполнено на предыдущем этапе плейбуком [dev.yml](./ansible/dev.yml) на инстансе `dev.pinbit.ru` в среде разработки. Вся структура для процесса CI/CD подгружается `Jenkins` в автоматически:
+Развертывание сервера `Jenkins` выполнено на предыдущем этапе плейбуком [dev.yml](./ansible/dev.yml) на инстансе `dev.pinbit.ru` в среде разработки. Вся структура для процесса CI/CD подгружается в `Jenkins` автоматически:
 
 - Groovy скрипт [Jenkins_AddCredentials.groovy.j2](./ansible/templates/Jenkins_AddCredentials.groovy.j2) выполняет добавление секретов в указанных в файле конфигурации [jenkins.yml](./ansible/inventory/dev/group_vars/jenkins.yml);
 - Groovy скрипт [Jenkins_CreateGlobalEnv.groovy.j2](./ansible/templates/Jenkins_CreateGlobalEnv.groovy.j2) выполняет добавление глобальных переменных;
